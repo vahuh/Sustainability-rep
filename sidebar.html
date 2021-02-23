@@ -37,7 +37,7 @@
     }
 
     .button4{
-      border: 2px solid slategray;
+      border: 2px solid orange;
     }
 
     .button5{
@@ -62,15 +62,15 @@
       <br>
       Click on a button to tag.
       </div>
-		<button class="button button1" onclick="buttonClick(this,'economic')">Economical Impact</button>
+		<button class="button button1" onclick="buttonClick(this,'economic','#9370DB')">Economical Impact</button>
     <br>
-    <button class="button button2" onclick="buttonClick(this, 'environmental')">Environmental Impact</button>
+    <button class="button button2" onclick="buttonClick(this, 'environmental','#2E8B57')">Environmental Impact</button>
     <br>
-    <button class="button button3" onclick="buttonClick(this,'social')">Social Impact</button>
+    <button class="button button3" onclick="buttonClick(this,'social','#DDA0DD')">Social Impact</button>
     <br>
-    <button class="button button4" onclick="buttonClick(this,'technical')">Technical Impact</button>
+    <button class="button button4" onclick="buttonClick(this,'technical','#FFA500')">Technical Impact</button>
     <br>
-    <button class="button button5" onclick="buttonClick(this, 'individual')">Individual Impact</button>
+    <button class="button button5" onclick="buttonClick(this, 'individual','#BC8F8F')">Individual Impact</button>
     <br>
     <div class="step createSpreadsheet">
       <b>Spreadsheet creation</b>
@@ -89,12 +89,12 @@
 	console.log("executing script...")
 
   /* Define a funciton to be executed when button is clicked */
-	function buttonClick(event, param){
-    console.log("buttonClick",event, param)
+	function buttonClick(event, param, color){
+    console.log("buttonClick",event, param, color)
     /* This is how to call cloud script functions from main.gs */
     google.script.run
       .withUserObject(this)
-      .tag(param)
+      .tag(param,color)
 }
 
 function sheetButtonClick(event){
