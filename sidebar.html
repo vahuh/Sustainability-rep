@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<base target="_top">
+	<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+	<!-- The CSS package above applies Google styling to buttons and other elements. -->
+
+	<!-- Our styling -->
+	<style>
+		.sidebar {
+			/* Just an example */
+			background-color: gainsboro;
+      height: 100%;
+		}
+
+    .button{
+      border: 2px solid silver;
+      text-align: center;
+      display: inline-block;
+      font-size: 14px;
+      margin: 4px 10px;
+      width: 80%;
+      height: 40px;
+    }
+
+    .button1{
+      border: 2px solid mediumpurple;
+    }
+
+    .button2{
+      border: 2px solid seagreen;
+    }
+
+    .button3{
+      border: 2px solid plum;
+    }
+
+    .button4{
+      border: 2px solid slategray;
+    }
+
+    .button5{
+      border: 2px solid rosybrown;
+    }
+
+    .step{
+      font-size: 14px;
+      margin: 5px 10px;
+    }
+
+	</style>
+</head>
+
+<body>
+
+	<!-- Our code here -->
+	<div class="sidebar">
+    <div class="description">Generate tag comments based on sustainability dimensions.</div>
+    <div class="step tagging">
+      <b>Tag</b>
+      <br>
+      Click on a button to tag.
+      </div>
+		<button class="button button1" onclick="buttonClick(this,'economic')">Economical Impact</button>
+    <br>
+    <button class="button button2" onclick="buttonClick(this, 'environmental')">Environmental Impact</button>
+    <br>
+    <button class="button button3" onclick="buttonClick(this,'social')">Social Impact</button>
+    <br>
+    <button class="button button4" onclick="buttonClick(this,'technical')">Technical Impact</button>
+    <br>
+    <button class="button button5" onclick="buttonClick(this, 'individual')">Individual Impact</button>
+    <br>
+    <div class="step createSpreadsheet">
+      <b>Spreadsheet creation</b>
+      <br>
+    </div>
+    <button class="button" style="background-color:Silver" onclick="sheetButtonClick(this)"> Create Spreadsheet</button>
+	</div>
+
+
+</body>
+
+
+<!-- Our script here -->
+<script>
+	/* console.log appears in dev tools console when plugin is loaded */
+	console.log("executing script...")
+
+  /* Define a funciton to be executed when button is clicked */
+	function buttonClick(event, param){
+    console.log("buttonClick",event, param)
+    /* This is how to call cloud script functions from main.gs */
+    google.script.run
+      .withUserObject(this)
+      .tag(param)
+}
+
+function sheetButtonClick(event){
+  console.log("sheetButtonClick",event)
+  google.script.run
+  .withUserObject(this)
+  .generateSheet()
+}
+
+
+
+</script>
+
+</html>
