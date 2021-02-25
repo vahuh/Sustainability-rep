@@ -2,19 +2,19 @@
 <html>
 
 <head>
-	<base target="_top">
-	<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
-	<!-- The CSS package above applies Google styling to buttons and other elements. -->
+  <base target="_top">
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  <!-- The CSS package above applies Google styling to buttons and other elements. -->
 
-	<!-- Our styling -->
-	<style>
-		.sidebar {
-			/* Just an example */
-			background-color: gainsboro;
+  <!-- Our styling -->
+  <style>
+    .sidebar {
+      /* Just an example */
+      background-color: gainsboro;
       height: 100%;
-		}
+    }
 
-    .button{
+    .button {
       border: 2px solid silver;
       text-align: center;
       display: inline-block;
@@ -24,87 +24,195 @@
       height: 40px;
     }
 
-    .button1{
+    .button1 {
       border: 2px solid mediumpurple;
     }
 
-    .button2{
+    .button2 {
       border: 2px solid seagreen;
     }
 
-    .button3{
+    .button3 {
       border: 2px solid plum;
     }
 
-    .button4{
+    .button4 {
       border: 2px solid slategray;
     }
 
-    .button5{
+    .button5 {
       border: 2px solid rosybrown;
     }
 
-    .step{
+    .step {
       font-size: 14px;
       margin: 5px 10px;
     }
 
-	</style>
+    /* modal background */
+    .modal {
+      /* Hidden by default */
+      display: none;
+      /* Stay in place */
+      position: fixed;
+      /* Sit on top */
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      /* Enable scroll if needed */
+      overflow: auto;
+      background-color: rgb(0, 0, 0);
+      /* Fallback color */
+      background-color: rgba(0, 0, 0, 0.4);
+      /* Black w/ opacity */
+    }
+
+    /* Modal Content/Box */
+    .modal-content {
+      background-color: #fefefe;
+      /* 15% from the top and centered */
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+    }
+
+    /* The Close Button */
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* modal buttons */
+    .button-inline {
+      display: inline-block;
+      border: 2px solid silver;
+      text-align: center;
+    }
+  </style>
 </head>
 
 <body>
 
-	<!-- Our code here -->
-	<div class="sidebar">
+  <!-- Our code here -->
+  <div class="sidebar">
     <div class="description">Generate tag comments based on sustainability dimensions.</div>
     <div class="step tagging">
       <b>Tag</b>
       <br>
       Click on a button to tag.
-      </div>
-		<button class="button button1" onclick="buttonClick(this,'economic')">Economical Impact</button>
+    </div>
+    <button class="button button1" onclick="openModal(this,'economic')">Economical Impact</button>
     <br>
-    <button class="button button2" onclick="buttonClick(this, 'environmental')">Environmental Impact</button>
+    <button class="button button2" onclick="openModal(this, 'environmental')">Environmental Impact</button>
     <br>
-    <button class="button button3" onclick="buttonClick(this,'social')">Social Impact</button>
+    <button class="button button3" onclick="openModal(this,'social')">Social Impact</button>
     <br>
-    <button class="button button4" onclick="buttonClick(this,'technical')">Technical Impact</button>
+    <button class="button button4" onclick="openModal(this,'technical')">Technical Impact</button>
     <br>
-    <button class="button button5" onclick="buttonClick(this, 'individual')">Individual Impact</button>
+    <button class="button button5" onclick="openModal(this, 'individual')">Individual Impact</button>
     <br>
     <div class="step createSpreadsheet">
       <b>Spreadsheet creation</b>
       <br>
     </div>
     <button class="button" style="background-color:Silver" onclick="sheetButtonClick(this)"> Create Spreadsheet</button>
-	</div>
+  </div>
+
+  <!-- SUSAF-POPUP MODAL -->
+  <div class="modal" id="susaf-popup">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <!-- close button -->
+      <span id="closeModal" class="close">&times;</span>
+
+      <h1>Create tag</h1>
+
+      <p id="susaf-tag"></p>
+
+      <h4>Order of effect</h4>
+
+      <button onclick="addFeature(this, 'order')" class="button-inline">1st order</button>
+      <button onclick="addFeature(this, 'order')" class="button-inline">2nd order</button>
+      <button onclick="addFeature(this, 'order')" class="button-inline">3rd order</button>
+
+      <h4>Effect</h4>
+
+      <button onclick="addFeature(this, 'effect')" class="button-inline">individual</button>
+      <button onclick="addFeature(this, 'effect')" class="button-inline">something...</button>
+
+    </div>
+  </div>
 
 
 </body>
 
 
 <!-- Our script here -->
-<script>
-	/* console.log appears in dev tools console when plugin is loaded */
-	console.log("executing script...")
+<script type="text/javascript">
+  /* console.log appears in dev tools console when plugin is loaded */
+  console.log("executing script...")
+
+  /* global variable to save tag */
+  window.tag = { order: "", effect: "", impact: "" }
+  /* global modal object */
+  const modal = document.getElementById("susaf-popup")
+
+  /* Hide modal on click of span element */
+  let span = document.getElementById("closeModal")
+  if (span) span.onclick = function () {
+    if (modal) modal.style.display = "none"
+  }
+
+  /* open modal popup with impact param */
+  function openModal(event, param) {
+    window.tag.impact = param
+    if (modal) modal.style.display = "block"
+    let p = document.getElementById("susaf-tag")
+    if (p) p.innerText = displayTag()
+  }
+
+  /* visual representation of tag */
+  function displayTag() {
+    let { order, effect, impact } = window.tag
+    return `${order || '?'}, ${effect || '?'}, ${impact || '?'}`
+  }
+
+  /* set a feature in tag */
+  function addFeature(element, feature) {
+    /* assign button content to tag object */
+    window.tag[feature] = element.innerHTML
+    let p = document.getElementById("susaf-tag")
+    if (p) p.innerText = displayTag()
+  }
+
 
   /* Define a funciton to be executed when button is clicked */
-	function buttonClick(event, param){
-    console.log("buttonClick",event, param)
+  function buttonClick(event, param) {
+    console.log("buttonClick", event, param)
     /* This is how to call cloud script functions from main.gs */
     google.script.run
       .withUserObject(this)
       .tag(param)
-}
+  }
 
-function sheetButtonClick(event){
-  console.log("sheetButtonClick",event)
-  google.script.run
-  .withUserObject(this)
-  .generateSheet()
-}
-
-
+  function sheetButtonClick(event) {
+    console.log("sheetButtonClick", event)
+    google.script.run
+      .withUserObject(this)
+      .generateSheet()
+  }
 
 </script>
 
