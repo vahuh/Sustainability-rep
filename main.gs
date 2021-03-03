@@ -31,6 +31,24 @@ function createSheetOnCurrentFolder() {
   if (folder) sheetfile.moveTo(folder)
 }
 
+function toCsv() {
+  /* Get current document folder */
+  let document = DocumentApp.getActiveDocument()
+  let file = DriveApp.getFileById(document.getId())
+  let folder = file.getParents().next()
+  /* Get first sheet */
+  let sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
+  let sheet = sheets.next()
+  if (sheet) {
+    /* Open spreadsheet */
+    let ss = SpreadsheetApp.openById(sheet.getId())
+    /* Get all data */
+    let range = ss.getDataRange()
+    /* Returns a list of lists */
+    let values = range.getValues()
+    console.log("values", values)
+  }
+}
 
 /* Function that creates a new Spreadsheet */
 function generateSheet() {
