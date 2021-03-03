@@ -17,6 +17,21 @@ function tag(param) {
   console.log("func tag called with", param)
 }
 
+
+/* Function to create Sheets in current folder */
+function createSheetOnCurrentFolder() {
+  /* Get current folder */
+  let document = DocumentApp.getActiveDocument()
+  let file = DriveApp.getFileById(document.getId())
+  let folder = file.getParents().next()
+  /* Create SpreadSheet */
+  let sheet = SpreadsheetApp.create("SuSaf output")
+  let sheetfile = DriveApp.getFileById(sheet.getId())
+  /* Move sheet to current folder */
+  if (folder) sheetfile.moveTo(folder)
+}
+
+
 /* Function that creates a new Spreadsheet */
 function generateSheet() {
   var newSheet = SpreadsheetApp.create("Tag List");
