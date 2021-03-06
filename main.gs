@@ -9,11 +9,64 @@ function tag(param) {
   let document = DocumentApp.getActiveDocument()
   let selection = document.getSelection()
   if (selection) {
-    Drive.Comments.insert({ anchor: selection, content: param }, document.getId())
+    let selectedText = getTextSelection(selection)
+    showPopup(selectedText,param)
     console.log("range", selection)
   }
-
   console.log("func tag called with", param)
+}
+
+/* Function to create Sheets in current folder */
+function createSheetOnCurrentFolder() {
+  /* Get current folder */
+  let document = DocumentApp.getActiveDocument()
+  let file = DriveApp.getFileById(document.getId())
+  let folder = file.getParents().next()
+  /* Create SpreadSheet */
+  let sheet = SpreadsheetApp.create("SuSaf output")
+  let sheetfile = DriveApp.getFileById(sheet.getId())
+  /* Move sheet to current folder */
+  if (folder) sheetfile.moveTo(folder)
+}
+
+function toCsv() {
+  /* Get current document folder */
+  let document = DocumentApp.getActiveDocument()
+  let file = DriveApp.getFileById(document.getId())
+  let folder = file.getParents().next()
+  /* Get first sheet */
+  let sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
+  let sheet = sheets.next()
+  if (sheet) {
+    /* Open spreadsheet */
+    let ss = SpreadsheetApp.openById(sheet.getId())
+    /* Get all data */
+    let range = ss.getDataRange()
+    /* Returns a list of lists */
+    let values = range.getValues()
+    console.log("values", values)
+  }
+}
+
+//function used to get the text selected by the user  
+function getTextSelection(selection){
+  var textAsString = ""
+  var selectedText= ""
+  var selectedElements = selection.getSelectedElements()
+  for (var i = 0; i < selectedElements.length;i++){
+    var currentElement = selectedElements[i]
+    //beginning of the user selection
+    selectedText=currentElement.getElement().asText().getText()
+    if (currentElement.isPartial()){
+      var startIndex = currentElement.getStartOffset()
+      //end of the user selection
+      var endIndex = currentElement.getEndOffsetInclusive()+1
+      //getting the selected text as a string
+      selectedText = selectedText.substring(startIndex, endIndex)
+    }
+    textAsString += " " + selectedText.trim()
+  }
+  return textAsString
 }
 
 
@@ -117,10 +170,11 @@ function showSidebar() {
 
 }
 
-//Function to show the Pop
-function showPopup(){
+//Function to show the Pop Up
+function showPopup(feature,dimension){
   var html = HtmlService.createHtmlOutputFromFile('popup')
-  .setWidth(500)
-  .setHeight(600)
+  .setWidth(600)
+  .setHeight(700)
   DocumentApp.getUi().showModalDialog(html, 'Feature tagging')
+}
 }
