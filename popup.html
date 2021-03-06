@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <!-- The CSS package below applies Bootstrap styling to forms layout. -->
+
+     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+      <!-- The CSS package below applies Google styling to buttons and other elements. -->
+    <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  </head>
+  
+  <style>
+    body{
+      margin-left:20px;
+    }
+  </style>
+ 
+  <body>
+    <h1>Create Tag</h1>
+    <form>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="inputCategory"> Category </label>
+          <input type="text" class="form-control" id="inputCategory" name="category" placeholder="Enter category">
+        </div>
+        <div class="form-group col-md-6">
+          <label for="inputSubcategory"> Subcategory </label>
+          <input type="text" class="form-control" id="inputSubcategory" name="subcategory" placeholder="Enter subcategory">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="topicSelection">Topic</label>
+        <input type="text" class="form-control" id="topicSelection" name="topic" placeholder="Enter topic">
+      </div>
+      <fieldset class="form-group">
+        <div class="row">
+          <legend class="col-form-label">Impact</legend>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="impactRadioOptions" id="impactRadioPos" value="positiveImpact">
+            <label class="form-check-label" for="impactRadioPos">Positive</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="impactRadioOptions" id="impactRadioNeg" value="negativeImpact">
+            <label class="form-check-label" for="impactRadioNeg">Negative</label>
+          </div>
+        </div>
+      </fieldset>
+      <fieldset class="form-group">
+        <div class="row">
+          <legend class="col-form-label">Order of effect</legend>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="effectRadioOptions" id="effectRadio1" value="effect1">
+            <label class="form-check-label" for="effectRadio1">1</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="effectRadioOptions" id="effectRadio2" value="effect2">
+            <label class="form-check-label" for="effectRadio2">2</label>
+          </div>  
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="effectRadioOptions" id="effectRadio3" value="effect3">
+            <label class="form-check-label" for="effectRadio3">3</label>
+          </div>  
+        </div>
+      </fieldset>
+      <div class="form-group">
+        <label for="memoArea">Memo</label>
+        <textarea class="form-control" id="memoArea" rows="4" cols="50"></textarea>
+      </div>
+
+      <button type="submit">Tag</button>
+    </form>
+    
+  </body>
+</html>
