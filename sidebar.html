@@ -84,7 +84,7 @@
 
 
 <!-- Our script here -->
-<script>
+<script type="text/javascript">
 	/* console.log appears in dev tools console when plugin is loaded */
 	console.log("executing script...")
 
@@ -96,14 +96,6 @@
       .withUserObject(this)
       .tag(param)
 }
-
-function sheetButtonClick(event){
-  console.log("sheetButtonClick",event)
-  google.script.run
-  .withUserObject(this)
-  .generateSheet()
-}
-
 
 
 </script>

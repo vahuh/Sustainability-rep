@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
     <base target="_top">
@@ -22,7 +22,8 @@
  
   <body>
     <h1>Create Tag</h1>
-    <form>
+    <form id="tagForm" onsubmit="submitTag(this)">
+
       <div class="form-row">
         <div class="form-group col-md-6">
           <label for="inputCategory"> Category </label>
@@ -72,10 +73,40 @@
         <textarea class="form-control" id="memoArea" rows="4" cols="50"></textarea>
       </div>
 
-      <button>Tag</button>
+      <button type="submit">Tag</button>
     </form>
   </body>
 
   <script type="text/javascript">
+  window.onload = intialize; 
+  window.addEventListener('load',preventSubmit)
+
+//function to initialize the html file with the data sent from main.gs
+  function initialize(){
+    var encodedFeature = document.getElementById("selectedFeature").innerHTML
+    var feature = JSON.parse(atob(encodedFeature)) 
+    var encodedDimension = document.getElementById("susDimension").innerHTML
+    var dimension = JSON.parse(atob(encodedDimension))
+
+    document.getElementById("tagForm").innerText=feature + "-" + dimension
+
+  }
+  
+  //function used to prevent forms from submitting
+  function preventSubmit(){
+    var currentForm = document.querySelector('form')
+    currentForm.addEventListener('submit',function(event){
+      event.preventDefault()
+    })
+
+  }
+ 
+  //function that calls function from google Script to process the elements entered in the form
+
+  function submitTag(formObject){
+    google.script.run.processFeatures(formObject)
+    document.getElementById("tagForm").reset()
+
+  }
   </script>
 </html>

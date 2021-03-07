@@ -4,7 +4,6 @@
   
  */
 
-
 function tag(param) {
   let document = DocumentApp.getActiveDocument()
   let selection = document.getSelection()
@@ -16,37 +15,6 @@ function tag(param) {
   console.log("func tag called with", param)
 }
 
-/* Function to create Sheets in current folder */
-function createSheetOnCurrentFolder() {
-  /* Get current folder */
-  let document = DocumentApp.getActiveDocument()
-  let file = DriveApp.getFileById(document.getId())
-  let folder = file.getParents().next()
-  /* Create SpreadSheet */
-  let sheet = SpreadsheetApp.create("SuSaf output")
-  let sheetfile = DriveApp.getFileById(sheet.getId())
-  /* Move sheet to current folder */
-  if (folder) sheetfile.moveTo(folder)
-}
-
-function toCsv() {
-  /* Get current document folder */
-  let document = DocumentApp.getActiveDocument()
-  let file = DriveApp.getFileById(document.getId())
-  let folder = file.getParents().next()
-  /* Get first sheet */
-  let sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
-  let sheet = sheets.next()
-  if (sheet) {
-    /* Open spreadsheet */
-    let ss = SpreadsheetApp.openById(sheet.getId())
-    /* Get all data */
-    let range = ss.getDataRange()
-    /* Returns a list of lists */
-    let values = range.getValues()
-    console.log("values", values)
-  }
-}
 
 //function used to get the text selected by the user  
 function getTextSelection(selection){
@@ -70,7 +38,6 @@ function getTextSelection(selection){
 }
 
 
-
 /* Function to create Sheets in current folder */
 function createSheetOnCurrentFolder() {
   /* Get current folder */
@@ -103,30 +70,8 @@ function toCsv() {
   }
 }
 
-/* Function that creates a new Spreadsheet */
-function generateSheet() {
-  var newSheet = SpreadsheetApp.create("Tag List");
-  writeOnSheet(newSheet);
-  //lets the user know that a spreadesheet was created
-  DocumentApp.getUi().alert('Tag List spreadsheet was created')
-}
 
-// Function that allows writing on a created Spreadsheet
-function writeOnSheet(sSheet) {
-  console.log("write to sheet", sSheet.getId())
-  let values = [
-    [
-      1, 2, 3// Cell values ...
-    ],
-    ["Tekstiä", "testi", "123"]
-    // Additional rows ...
-  ];
 
-  range = sSheet.getRange("A1:C2")
-  range.setValues(values)
-
-  console.log("result = ", result)
-}
 /**
  * Creates a menu entry in the Google Docs UI when the document is opened.
  * This method is only used by the regular add-on, and is never called by
@@ -170,11 +115,33 @@ function showSidebar() {
 
 }
 
-//Function to show the Pop Up
+//Function to show the Pop Up 
 function showPopup(feature,dimension){
-  var html = HtmlService.createHtmlOutputFromFile('popup')
+  var htmlPopup = HtmlService.createHtmlOutputFromFile('popup')
   .setWidth(600)
   .setHeight(700)
-  DocumentApp.getUi().showModalDialog(html, 'Feature tagging')
+  //variable to append the selected feature as hidden division in the html file
+  var strFeature = "<div id='selectedFeature' style='display:none;'>" + Utilities.base64Encode(JSON.stringify(feature)) + "</div>"
+//appending the Feature division to html popup file
+  htmlPopup = htmlPopup.append(strFeature)
+//variables to append the sustainability dimensions as hidden division in the html file
+  var strDimension = "<div id='susDimension' style='display:none;'>" + Utilities.base64Encode(JSON.stringify(dimension)) + "</div>"
+//appending the sustainability dimension to html file  
+  htmlPopup = htmlPopup.append(strDimension)
+//getting the form visible to the user
+  DocumentApp.getUi().showModalDialog(htmlPopup, 'Feature tagging')
+  
 }
+
+
+/** 
+ * This doesn't work properly, needs to be fixed, the spreadsheet url needs also to be changed once we have a working code* */
+function processFeatures(formObject){
+  var spreadsheetURL="https://docs.google.com/spreadsheets/d/152NZwO02mdxcgO1nKpyCYGHWyD07vGEI9JZestKjwsI/edit#gid=0"
+  var usedSpreadSheet = SpreadsheetApp.openByUrl(spreadsheetURL)
+  var currentSheet = usedSpreadSheet.getSheetByName("Sheet1")
+
+  currentSheet.appendRow([formObject.inputCategory,formObject.inputSubCategory, formObject.topicSelection])
+
+
 }
