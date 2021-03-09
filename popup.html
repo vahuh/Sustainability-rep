@@ -28,7 +28,7 @@
 		<div class="form-row">
 			<div class="form-group col-md-6">
 				<label for="inputCategory"> Category </label>
-				<input type="text" class="form-control" id="inputCategory" name="category" placeholder="Enter category">
+				<input type="text" class="form-control" id="inputCategory" name="category" placeholder="Enter category" >
         </div>
 				<div class="form-group col-md-6">
 					<label for="inputSubcategory"> Subcategory </label>
@@ -79,7 +79,7 @@
 </body>
 
 <script type="text/javascript">
-	window.onload = intialize; 
+	window.onload = initialize; 
   window.addEventListener('load',preventSubmit)
 
 //function to initialize the html file with the data sent from main.gs
@@ -88,9 +88,10 @@
     var feature = JSON.parse(atob(encodedFeature)) 
     var encodedDimension = document.getElementById("susDimension").innerHTML
     var dimension = JSON.parse(atob(encodedDimension))
-
-    document.getElementById("tagForm").innerText=feature + "-" + dimension
-
+    let form = document.getElementById("tagForm")
+    let elem = document.createElement("h2")
+    elem.innerText = feature + "-" + dimension
+    form.insertBefore(elem, form.childNodes[0])
   }
   
   //function used to prevent forms from submitting

@@ -150,7 +150,7 @@ function processFeatures(formObject) {
   if (sheet) {
     /* Open spreadsheet */
     let currentSheet = SpreadsheetApp.openById(sheet.getId())
-    console.log("formObject", formObject)
+    console.log("formObject", formObject.inputCategory,"subcat", formObject.inputSubCategory, formObject.topicSelection, formObject)
     currentSheet.appendRow([formObject.inputCategory, formObject.inputSubCategory, formObject.topicSelection])
   }
 }
