@@ -146,8 +146,12 @@ function processFeatures(formObject) {
   let folder = file.getParents().next()
   /* Get first sheet */
   let sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
+  if (!sheets.hasNext()) {
+    createSheetOnCurrentFolder()
+    sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
+  }
   let sheet = sheets.next()
-  if (sheet) {
+  if (sheet){
     /* Open spreadsheet */
     let currentSheet = SpreadsheetApp.openById(sheet.getId())
     console.log("formObject", formObject.inputCategory,"subcat", formObject.inputSubCategory, formObject.topicSelection, formObject)
