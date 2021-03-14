@@ -1,20 +1,43 @@
 /* 
   Sustainability reporting plugin 
-
   
   
  */
-
 
 function tag(param) {
   let document = DocumentApp.getActiveDocument()
   let selection = document.getSelection()
   if (selection) {
-    Drive.Comments.insert({ anchor: selection, content: param }, document.getId())
+    let selectedText = getTextSelection(selection)
+    showPopup(selectedText, param)
     console.log("range", selection)
   }
-
+  else{
+    DocumentApp.getUi().alert("You need to select text to tag!")
+  }
   console.log("func tag called with", param)
+}
+
+
+//function used to get the text selected by the user  
+function getTextSelection(selection) {
+  var textAsString = ""
+  var selectedText = ""
+  var selectedElements = selection.getSelectedElements()
+  for (var i = 0; i < selectedElements.length; i++) {
+    var currentElement = selectedElements[i]
+    //beginning of the user selection
+    selectedText = currentElement.getElement().asText().getText()
+    if (currentElement.isPartial()) {
+      var startIndex = currentElement.getStartOffset()
+      //end of the user selection
+      var endIndex = currentElement.getEndOffsetInclusive() + 1
+      //getting the selected text as a string
+      selectedText = selectedText.substring(startIndex, endIndex)
+    }
+    textAsString += " " + selectedText.trim()
+  }
+  return textAsString
 }
 
 
@@ -26,6 +49,8 @@ function createSheetOnCurrentFolder() {
   let folder = file.getParents().next()
   /* Create SpreadSheet */
   let sheet = SpreadsheetApp.create("SuSaf output")
+  sheet.appendRow(['Feature', 'Dimension', 'Category', 'SubCategory','Topic','Impact', 'Order of effect', 'Memo'])
+
   let sheetfile = DriveApp.getFileById(sheet.getId())
   /* Move sheet to current folder */
   if (folder) sheetfile.moveTo(folder)
@@ -50,30 +75,8 @@ function toCsv() {
   }
 }
 
-/* Function that creates a new Spreadsheet */
-function generateSheet() {
-  var newSheet = SpreadsheetApp.create("Tag List");
-  writeOnSheet(newSheet);
-  //lets the user know that a spreadesheet was created
-  DocumentApp.getUi().alert('Tag List spreadsheet was created')
-}
 
-// Function that allows writing on a created Spreadsheet
-function writeOnSheet(sSheet) {
-  console.log("write to sheet", sSheet.getId())
-  let values = [
-    [
-      1, 2, 3// Cell values ...
-    ],
-    ["Tekstiä", "testi", "123"]
-    // Additional rows ...
-  ];
 
-  range = sSheet.getRange("A1:C2")
-  range.setValues(values)
-
-  console.log("result = ", result)
-}
 /**
  * Creates a menu entry in the Google Docs UI when the document is opened.
  * This method is only used by the regular add-on, and is never called by
@@ -114,3 +117,47 @@ function showSidebar() {
   var ui = HtmlService.createHtmlOutputFromFile('sidebar')
     .setTitle('Sustainability Reporting');
   DocumentApp.getUi().showSidebar(ui);
+
+}
+
+//Function to show the Pop Up 
+function showPopup(feature, dimension) {
+  var htmlPopup = HtmlService.createHtmlOutputFromFile('popup')
+    .setWidth(600)
+    .setHeight(700)
+  //variable to append the selected feature as hidden division in the html file
+  var strFeature = "<div id='selectedFeature' style='display:none;'>" + Utilities.base64Encode(JSON.stringify(feature)) + "</div>"
+  //appending the Feature division to html popup file
+  htmlPopup = htmlPopup.append(strFeature)
+  //variables to append the sustainability dimensions as hidden division in the html file
+  var strDimension = "<div id='susDimension' style='display:none;'>" + Utilities.base64Encode(JSON.stringify(dimension)) + "</div>"
+  //appending the sustainability dimension to html file  
+  htmlPopup = htmlPopup.append(strDimension)
+  //getting the form visible to the user
+  DocumentApp.getUi().showModalDialog(htmlPopup, 'Feature tagging')
+
+}
+
+
+
+function processFeatures(formObject) {
+
+  let document = DocumentApp.getActiveDocument()
+  let file = DriveApp.getFileById(document.getId())
+  let folder = file.getParents().next()
+  /* Get first sheet */
+  let sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
+  if (!sheets.hasNext()) {
+    createSheetOnCurrentFolder()
+    sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
+  }
+  let sheet = sheets.next()
+  if (sheet){
+    /* Open spreadsheet */
+    let currentSheet = SpreadsheetApp.openById(sheet.getId())
+    console.log("formObject", formObject.inputCategory,"subcat", formObject.inputSubCategory, formObject.topicSelection, formObject)
+    
+    currentSheet.appendRow([formObject.selectedFeature, formObject.susDimension, formObject.inputCategory, formObject.inputSubCategory, formObject.topicSelection,formObject.impactPosNeg,formObject.orderEffect, formObject.memoArea])
+  }
+}
+
