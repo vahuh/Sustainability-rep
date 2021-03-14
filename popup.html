@@ -43,11 +43,11 @@
 						<div class="row">
 							<legend class="col-form-label">Impact</legend>
 							<div class="form-check form-check-inline">
-								<input class="form-check-input" type="radio" name="impactRadioOptions" id="impactRadioPos" value="positiveImpact">
+								<input class="form-check-input" type="radio" name="impactRadioOptions" id="impactRadioPos" value="positive">
 								<label class="form-check-label" for="impactRadioPos">Positive</label>
 							</div>
 							<div class="form-check form-check-inline">
-								<input class="form-check-input" type="radio" name="impactRadioOptions" id="impactRadioNeg" value="negativeImpact">
+								<input class="form-check-input" type="radio" name="impactRadioOptions" id="impactRadioNeg" value="negative">
 								<label class="form-check-label" for="impactRadioNeg">Negative</label>
 							</div>
 						</div>
@@ -56,15 +56,15 @@
 						<div class="row">
 							<legend class="col-form-label">Order of effect</legend>
 							<div class="form-check form-check-inline">
-								<input class="form-check-input" type="radio" name="effectRadioOptions" id="effectRadio1" value="effect1">
+								<input class="form-check-input" type="radio" name="effectRadioOptions" id="effectRadio1" value="1">
 								<label class="form-check-label" for="effectRadio1">1</label>
 							</div>
 							<div class="form-check form-check-inline">
-								<input class="form-check-input" type="radio" name="effectRadioOptions" id="effectRadio2" value="effect2">
+								<input class="form-check-input" type="radio" name="effectRadioOptions" id="effectRadio2" value="2">
 								<label class="form-check-label" for="effectRadio2">2</label>
 							</div>
 							<div class="form-check form-check-inline">
-								<input class="form-check-input" type="radio" name="effectRadioOptions" id="effectRadio3" value="effect3">
+								<input class="form-check-input" type="radio" name="effectRadioOptions" id="effectRadio3" value="3">
 								<label class="form-check-label" for="effectRadio3">3</label>
 							</div>
 						</div>
@@ -99,6 +99,8 @@ function getSelectedRadio(form, radioGroup){
 
 }
 
+
+
 //function to initialize the html file with the data sent from main.gs
   function initialize(){
     var encodedFeature = document.getElementById("selectedFeature").innerHTML
@@ -109,6 +111,19 @@ function getSelectedRadio(form, radioGroup){
     let elem = document.createElement("h6")
     elem.innerText = "Selected text: " + feature + " - Dimension: " + dimension
     form.insertBefore(elem, form.childNodes[0])
+
+    var featureElement = document.createElement("input")
+    featureElement.setAttribute("type","hidden")
+    featureElement.setAttribute("id","selectedFeature")
+    featureElement.setAttribute("value",feature)
+    document.getElementById("tagForm").appendChild(featureElement)
+
+    var dimensionElement = document.createElement("input")
+    dimensionElement.setAttribute("type","hidden")
+    dimensionElement.setAttribute("id","susDimension")
+    dimensionElement.setAttribute("value",dimension)
+    document.getElementById("tagForm").appendChild(dimensionElement)
+
   }
   
   //function used to prevent forms from submitting
@@ -119,25 +134,32 @@ function getSelectedRadio(form, radioGroup){
     })
   }
  
-
  
   //function that calls function from google Script to process the elements entered in the form
 
   function submitTag(formObject){
       
     let elements = Array.from(formObject.elements)
-
     let obj = {}
+
+    //adding each element having an ID into the obj dictionnary 
     elements.forEach(e => {
       if (e.id){
         obj[e.id] = e.value
       }
     })
+ 
+    //adding positive or negative impact based on the selected radio button to the dictionnary 
+    obj["impactPosNeg"] = getSelectedRadio(formObject,"impactRadioOptions")
+
+    //adding order of effect based on the selected radio button to the dictionnary
+    obj["orderEffect"] = getSelectedRadio(formObject,"effectRadioOptions")
 
     google.script.run.processFeatures(obj)
     document.getElementById("tagForm").reset()
-    
-
+    //closing window after submitting
+    google.script.host.close()
+      
   }
 </script>
 
