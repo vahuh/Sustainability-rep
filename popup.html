@@ -1,85 +1,103 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <base target="_top">
 
-     <!-- The CSS package below applies Google styling to buttons and other elements. -->
-      <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
-    
-    <!-- The CSS package below applies Bootstrap styling to forms layout. -->
+<head>
+	<base target="_top">
 
-     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<!-- The CSS package below applies Google styling to buttons and other elements. -->
+	<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
 
-     
-  </head>
-  
-  <style>
-    
-    .row{
-      margin-left:10px;
-    }
-  </style>
- 
-  <body>
-    <h1>Create Tag</h1>
-    <form id="tagForm" onsubmit="submitTag(this)">
+	<!-- The CSS package below applies Bootstrap styling to forms layout. -->
 
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <label for="inputCategory"> Category </label>
-          <input type="text" class="form-control" id="inputCategory" name="category" placeholder="Enter category">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+
+</head>
+
+<style>
+	.row {
+		margin-left: 10px;
+	}
+</style>
+
+<body>
+	<h1>Create Tag</h1>
+	<form id="tagForm" onsubmit="submitTag(this)">
+
+		<div class="form-row">
+			<div class="form-group col-md-6">
+				<label for="inputCategory"> Category </label>
+				<input type="text" class="form-control" id="inputCategory" name="category" placeholder="Enter category" >
         </div>
-        <div class="form-group col-md-6">
-          <label for="inputSubcategory"> Subcategory </label>
-          <input type="text" class="form-control" id="inputSubcategory" name="subcategory" placeholder="Enter subcategory">
+				<div class="form-group col-md-6">
+					<label for="inputSubcategory"> Subcategory </label>
+					<input type="text" class="form-control" id="inputSubCategory" name="subcategory" placeholder="Enter subcategory">
         </div>
+				</div>
+				<div class="form-group">
+					<label for="topicSelection">Topic</label>
+					<input type="text" class="form-control" id="topicSelection" name="topic" placeholder="Enter topic">
       </div>
-      <div class="form-group">
-        <label for="topicSelection">Topic</label>
-        <input type="text" class="form-control" id="topicSelection" name="topic" placeholder="Enter topic">
-      </div>
-      <fieldset class="form-group">
-        <div class="row">
-          <legend class="col-form-label">Impact</legend>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="impactRadioOptions" id="impactRadioPos" value="positiveImpact">
-            <label class="form-check-label" for="impactRadioPos">Positive</label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="impactRadioOptions" id="impactRadioNeg" value="negativeImpact">
-            <label class="form-check-label" for="impactRadioNeg">Negative</label>
-          </div>
-        </div>
-      </fieldset>
-      <fieldset class="form-group">
-        <div class="row">
-          <legend class="col-form-label">Order of effect</legend>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="effectRadioOptions" id="effectRadio1" value="effect1">
-            <label class="form-check-label" for="effectRadio1">1</label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="effectRadioOptions" id="effectRadio2" value="effect2">
-            <label class="form-check-label" for="effectRadio2">2</label>
-          </div>  
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="effectRadioOptions" id="effectRadio3" value="effect3">
-            <label class="form-check-label" for="effectRadio3">3</label>
-          </div>  
-        </div>
-      </fieldset>
-      <div class="form-group">
-        <label for="memoArea">Memo</label>
-        <textarea class="form-control" id="memoArea" rows="4" cols="50"></textarea>
-      </div>
+					<fieldset class="form-group">
+						<div class="row">
+							<legend class="col-form-label">Impact</legend>
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="impactRadioOptions" id="impactRadioPos" value="positiveImpact">
+								<label class="form-check-label" for="impactRadioPos">Positive</label>
+							</div>
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="impactRadioOptions" id="impactRadioNeg" value="negativeImpact">
+								<label class="form-check-label" for="impactRadioNeg">Negative</label>
+							</div>
+						</div>
+					</fieldset>
+					<fieldset class="form-group">
+						<div class="row">
+							<legend class="col-form-label">Order of effect</legend>
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="effectRadioOptions" id="effectRadio1" value="effect1">
+								<label class="form-check-label" for="effectRadio1">1</label>
+							</div>
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="effectRadioOptions" id="effectRadio2" value="effect2">
+								<label class="form-check-label" for="effectRadio2">2</label>
+							</div>
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="effectRadioOptions" id="effectRadio3" value="effect3">
+								<label class="form-check-label" for="effectRadio3">3</label>
+							</div>
+						</div>
+					</fieldset>
+					<div class="form-group">
+						<label for="memoArea">Memo</label>
+						<textarea class="form-control" id="memoArea" rows="4" cols="50"></textarea>
+					</div>
 
-      <button type="submit">Tag</button>
-    </form>
-  </body>
+					<button type="submit">Tag</button>
+	</form>
+</body>
 
-  <script type="text/javascript">
-  window.onload = intialize; 
+<script type="text/javascript">
+	window.onload = initialize; 
   window.addEventListener('load',preventSubmit)
+
+//Function to get value of selected radio button 
+function getSelectedRadio(form, radioGroup){
+  var selectedRadio;
+  //Setting all Radios from a group to a list based on anme 
+  var radioList = form.elements[radioGroup]
+
+  //Loop that finds if a value is checked in the list and returns its value  
+  for (var i= 0, len=radioList.length;i<len;i++){
+    if(radioList[i].checked){
+      selectedRadio = radioList[i].value
+      break
+    }
+  }
+  return selectedRadio;
+
+}
 
 //function to initialize the html file with the data sent from main.gs
   function initialize(){
@@ -87,9 +105,10 @@
     var feature = JSON.parse(atob(encodedFeature)) 
     var encodedDimension = document.getElementById("susDimension").innerHTML
     var dimension = JSON.parse(atob(encodedDimension))
-
-    document.getElementById("tagForm").innerText=feature + "-" + dimension
-
+    let form = document.getElementById("tagForm")
+    let elem = document.createElement("h6")
+    elem.innerText = "Selected text: " + feature + " - Dimension: " + dimension
+    form.insertBefore(elem, form.childNodes[0])
   }
   
   //function used to prevent forms from submitting
@@ -98,15 +117,28 @@
     currentForm.addEventListener('submit',function(event){
       event.preventDefault()
     })
-
   }
+ 
+
  
   //function that calls function from google Script to process the elements entered in the form
 
   function submitTag(formObject){
-    google.script.run.processFeatures(formObject)
+      
+    let elements = Array.from(formObject.elements)
+
+    let obj = {}
+    elements.forEach(e => {
+      if (e.id){
+        obj[e.id] = e.value
+      }
+    })
+
+    google.script.run.processFeatures(obj)
     document.getElementById("tagForm").reset()
+    
 
   }
-  </script>
+</script>
+
 </html>
