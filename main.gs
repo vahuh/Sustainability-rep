@@ -13,9 +13,8 @@ function tag(param) {
     console.log("range", selection)
   }
   console.log("func tag called with", param)
-}
-
-
+  
+  
 //function used to get the text selected by the user  
 function getTextSelection(selection) {
   var textAsString = ""
@@ -35,6 +34,14 @@ function getTextSelection(selection) {
     textAsString += " " + selectedText.trim()
   }
   return textAsString
+
+
+/* Function that creates a new Spreadsheet */
+function generateSheet() {
+  var newSheet = SpreadsheetApp.create("Tag List");
+  writeOnSheet(newSheet);
+  //lets the user know that a spreadesheet was created
+  DocumentApp.getUi().alert('Tag List spreadsheet was created')
 }
 
 
