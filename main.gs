@@ -12,7 +12,7 @@ function tag(param) {
     showPopup(selectedText, param)
     console.log("range", selection)
   }
-  else{
+  else {
     DocumentApp.getUi().alert("You need to select text to tag!")
   }
   console.log("func tag called with", param)
@@ -49,7 +49,7 @@ function createSheetOnCurrentFolder() {
   let folder = file.getParents().next()
   /* Create SpreadSheet */
   let sheet = SpreadsheetApp.create("SuSaf output")
-  sheet.appendRow(['Feature', 'Dimension', 'Category', 'SubCategory','Topic','Impact', 'Order of effect', 'Memo'])
+  sheet.appendRow(['Feature', 'Dimension', 'Category', 'SubCategory', 'Topic', 'Impact', 'Order of effect', 'Memo'])
 
   let sheetfile = DriveApp.getFileById(sheet.getId())
   /* Move sheet to current folder */
@@ -89,6 +89,7 @@ function toCsv() {
 function onOpen(e) {
   DocumentApp.getUi().createAddonMenu()
     .addItem('Start', 'showSidebar')
+    .addItem('Topic list', 'askTopics')
     .addToUi();
 }
 
@@ -120,9 +121,47 @@ function showSidebar() {
 
 }
 
-//Function to show the Pop Up 
+/**
+*  Display a dialog box with a title, message, input field, and "Yes" and "No" buttons.
+*  The user can also close the dialog by clicking the close button in its title bar.
+*/
+function askTopics() {
+  // Get previous properties
+  let documentProperties = PropertiesService.getDocumentProperties();
+  let topics = documentProperties.getProperty('TOPICS');
+  let ui = DocumentApp.getUi();
+  let response = ui.prompt('List of topics', topics + '\nSeparate topics with comma', ui.ButtonSet.YES_NO);
+
+  // Process the user's response.
+  if (response.getSelectedButton() == ui.Button.YES) {
+    // Got response, save as new topic list
+    let text = response.getResponseText();
+    documentProperties.setProperty('TOPICS', text);
+  } else if (response.getSelectedButton() == ui.Button.NO) {
+    // the user clicked no
+  } else {
+    // the user closed popup
+  }
+}
+
+// Function to show the Pop Up 
 function showPopup(feature, dimension) {
-  var htmlPopup = HtmlService.createHtmlOutputFromFile('popup')
+  // Get document topics
+  let documentProperties = PropertiesService.getDocumentProperties();
+  let topics = documentProperties.getProperty('TOPICS')
+  let htmlTemplate = HtmlService.createTemplateFromFile('popup')
+
+  if (topics) {
+    // set topics on template
+    htmlTemplate.data = topics.split(",");
+  } else {
+    // send empty array
+    htmlTemplate.data = []
+  }
+  // evaluate template
+  let htmlPopup = htmlTemplate.evaluate();
+  // set width and height
+  htmlPopup
     .setWidth(600)
     .setHeight(700)
   //variable to append the selected feature as hidden division in the html file
@@ -152,12 +191,12 @@ function processFeatures(formObject) {
     sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
   }
   let sheet = sheets.next()
-  if (sheet){
+  if (sheet) {
     /* Open spreadsheet */
     let currentSheet = SpreadsheetApp.openById(sheet.getId())
-    console.log("formObject", formObject.inputCategory,"subcat", formObject.inputSubCategory, formObject.topicSelection, formObject)
-    
-    currentSheet.appendRow([formObject.selectedFeature, formObject.susDimension, formObject.inputCategory, formObject.inputSubCategory, formObject.topicSelection,formObject.impactPosNeg,formObject.orderEffect, formObject.memoArea])
+    console.log("formObject", formObject.inputCategory, "subcat", formObject.inputSubCategory, formObject.topicSelection, formObject)
+
+    currentSheet.appendRow([formObject.selectedFeature, formObject.susDimension, formObject.inputCategory, formObject.inputSubCategory, formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea])
   }
 }
 
