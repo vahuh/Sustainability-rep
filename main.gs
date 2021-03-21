@@ -9,6 +9,7 @@ function tag(param) {
   let selection = document.getSelection()
   if (selection) {
     let selectedText = getTextSelection(selection)
+    highlightSelectedText(selection)
     showPopup(selectedText, param)
     console.log("range", selection)
   }
@@ -40,6 +41,27 @@ function getTextSelection(selection) {
   return textAsString
 }
 
+//Function used to highlight the selected text in the color of the associated dimension
+function highlightSelectedText(selection){
+  //an element is a paragraph 
+  var selectedElements = selection.getRangeElements()
+  for (var i = 0; i < selectedElements.length; i++){
+    var currentElement = selectedElements[i]
+    //Checking that the selection is text and not images
+    if (currentElement.getElement().editAsText){  
+      var text = currentElement.getElement().editAsText()
+      //checking if the current element is complete or not
+      if (currentElement.isPartial()){
+        var startIndex = currentElement.getStartOffset()
+        var endIndex = currentElement.getEndOffsetInclusive()
+        //Highlighting the text by changing its background color based on the associated dimension, sets the color only to the selected text
+        text.setBackgroundColor(startIndex, endIndex, '#FFFF00')
+      }else{
+        text.setBackgroundColor('#FFFF00')
+      }
+    }
+  }
+}
 
 /* Function to create Sheets in current folder */
 function createSheetOnCurrentFolder() {
@@ -199,4 +221,3 @@ function processFeatures(formObject) {
     currentSheet.appendRow([formObject.selectedFeature, formObject.susDimension, formObject.inputCategory, formObject.inputSubCategory, formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea])
   }
 }
-
