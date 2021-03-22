@@ -42,21 +42,21 @@ function getTextSelection(selection) {
 }
 
 //Function used to highlight the selected text in the color of the associated dimension
-function highlightSelectedText(selection){
+function highlightSelectedText(selection) {
   //an element is a paragraph 
   var selectedElements = selection.getRangeElements()
-  for (var i = 0; i < selectedElements.length; i++){
+  for (var i = 0; i < selectedElements.length; i++) {
     var currentElement = selectedElements[i]
     //Checking that the selection is text and not images
-    if (currentElement.getElement().editAsText){  
+    if (currentElement.getElement().editAsText) {
       var text = currentElement.getElement().editAsText()
       //checking if the current element is complete or not
-      if (currentElement.isPartial()){
+      if (currentElement.isPartial()) {
         var startIndex = currentElement.getStartOffset()
         var endIndex = currentElement.getEndOffsetInclusive()
         //Highlighting the text by changing its background color based on the associated dimension, sets the color only to the selected text
         text.setBackgroundColor(startIndex, endIndex, '#FFFF00')
-      }else{
+      } else {
         text.setBackgroundColor('#FFFF00')
       }
     }
@@ -140,7 +140,6 @@ function showSidebar() {
   var ui = HtmlService.createHtmlOutputFromFile('sidebar')
     .setTitle('Sustainability Reporting');
   DocumentApp.getUi().showSidebar(ui);
-
 }
 
 /**
@@ -202,22 +201,25 @@ function showPopup(feature, dimension) {
 
 
 function processFeatures(formObject) {
+  try {
+    let document = DocumentApp.getActiveDocument()
+    let file = DriveApp.getFileById(document.getId())
+    let folder = file.getParents().next()
+    /* Get first sheet */
+    let sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
+    if (!sheets.hasNext()) {
+      createSheetOnCurrentFolder()
+      sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
+    }
+    let sheet = sheets.next()
+    if (sheet) {
+      /* Open spreadsheet */
+      let currentSheet = SpreadsheetApp.openById(sheet.getId())
+      console.log("formObject", formObject.inputCategory, "subcat", formObject.inputSubCategory, formObject.topicSelection, formObject)
 
-  let document = DocumentApp.getActiveDocument()
-  let file = DriveApp.getFileById(document.getId())
-  let folder = file.getParents().next()
-  /* Get first sheet */
-  let sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
-  if (!sheets.hasNext()) {
-    createSheetOnCurrentFolder()
-    sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
-  }
-  let sheet = sheets.next()
-  if (sheet) {
-    /* Open spreadsheet */
-    let currentSheet = SpreadsheetApp.openById(sheet.getId())
-    console.log("formObject", formObject.inputCategory, "subcat", formObject.inputSubCategory, formObject.topicSelection, formObject)
-
-    currentSheet.appendRow([formObject.selectedFeature, formObject.susDimension, formObject.inputCategory, formObject.inputSubCategory, formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea])
+      currentSheet.appendRow([formObject.selectedFeature, formObject.susDimension, formObject.inputCategory, formObject.inputSubCategory, formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea])
+    }
+  } catch (e) {
+    DocumentApp.getUi().alert("You don't have permission to write to parent folder. Please contact project owner.");
   }
 }
