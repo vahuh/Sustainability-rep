@@ -200,7 +200,7 @@ function showPopup(feature, dimension) {
 
 
 
-function processFeatures(formObject) {
+async function processFeatures(formObject) {
   try {
     let document = DocumentApp.getActiveDocument()
     let file = DriveApp.getFileById(document.getId())
@@ -208,7 +208,7 @@ function processFeatures(formObject) {
     /* Get first sheet */
     let sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
     if (!sheets.hasNext()) {
-      createSheetOnCurrentFolder()
+      await createSheetOnCurrentFolder()
       sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
     }
     let sheet = sheets.next()
