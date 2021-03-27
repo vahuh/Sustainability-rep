@@ -4,19 +4,18 @@
   
  */
 
-function tag(param) {
+function tag(dimension) {
   let document = DocumentApp.getActiveDocument()
   let selection = document.getSelection()
   if (selection) {
     let selectedText = getTextSelection(selection)
-    highlightSelectedText(selection)
-    showPopup(selectedText, param)
+    highlightSelectedText(selection, dimension)
+    showPopup(selectedText, dimension)
     console.log("range", selection)
   }
   else {
     DocumentApp.getUi().alert("You need to select text to tag!")
   }
-  console.log("func tag called with", param)
 }
 
 
@@ -42,8 +41,29 @@ function getTextSelection(selection) {
 }
 
 //Function used to highlight the selected text in the color of the associated dimension
-function highlightSelectedText(selection) {
+function highlightSelectedText(selection, dimension) {
   //an element is a paragraph 
+  let color;
+  switch (dimension) {
+    case "economic":
+      color = "#9370db"
+      break
+    case "environmental":
+      color = "#2e8b57"
+      break
+    case "social":
+      color = "#DDA0DD"
+      break
+    case "technical":
+      color = "#708090"
+      break
+    case "individual":
+      color = "#bc8f8f"
+      break
+    default:
+      color = '#FFFF00'
+  }
+
   var selectedElements = selection.getRangeElements()
   for (var i = 0; i < selectedElements.length; i++) {
     var currentElement = selectedElements[i]
@@ -55,9 +75,9 @@ function highlightSelectedText(selection) {
         var startIndex = currentElement.getStartOffset()
         var endIndex = currentElement.getEndOffsetInclusive()
         //Highlighting the text by changing its background color based on the associated dimension, sets the color only to the selected text
-        text.setBackgroundColor(startIndex, endIndex, '#FFFF00')
+        text.setBackgroundColor(startIndex, endIndex, color)
       } else {
-        text.setBackgroundColor('#FFFF00')
+        text.setBackgroundColor(color)
       }
     }
   }
