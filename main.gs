@@ -91,7 +91,7 @@ function createSheetOnCurrentFolder() {
   let folder = file.getParents().next()
   /* Create SpreadSheet */
   let sheet = SpreadsheetApp.create("SuSaf output")
-  sheet.appendRow(['Feature', 'Dimension', 'Category', 'SubCategory', 'Topic', 'Impact', 'Order of effect', 'Memo'])
+  sheet.appendRow(['Effect', 'Dimension', 'Category', 'SubCategory', 'Topic', 'Impact', 'Order of effect', 'Memo','Predecessor','Leads to'])
 
   let sheetfile = DriveApp.getFileById(sheet.getId())
   /* Move sheet to current folder */
@@ -186,39 +186,41 @@ function askTopics() {
 }
 
 // Function to show the Pop Up 
-function showPopup(feature, dimension) {
+function showPopup(effect, dimension) {
   // Get document topics
   let documentProperties = PropertiesService.getDocumentProperties();
   let topics = documentProperties.getProperty('TOPICS')
   let htmlTemplate = HtmlService.createTemplateFromFile('popup')
+  let ddOptions = populateDropdown()
+  //set feature dropdown options to template
+  htmlTemplate.dropdownOptions = ddOptions
+  console.log("test",ddOptions)
 
   if (topics) {
     // set topics on template
-    htmlTemplate.data = topics.split(",");
+    htmlTemplate.data = topics.split(",")
   } else {
     // send empty array
     htmlTemplate.data = []
   }
   // evaluate template
-  let htmlPopup = htmlTemplate.evaluate();
+  let htmlPopup = htmlTemplate.evaluate()
   // set width and height
   htmlPopup
     .setWidth(600)
-    .setHeight(700)
-  //variable to append the selected feature as hidden division in the html file
-  var strFeature = "<div id='selectedFeature' style='display:none;'>" + Utilities.base64Encode(JSON.stringify(feature)) + "</div>"
-  //appending the Feature division to html popup file
-  htmlPopup = htmlPopup.append(strFeature)
+    .setHeight(750)
+  //variable to append the selected effect as hidden division in the html file
+  var strEffect = "<div id='selectedEffect' style='display:none;'>" + Utilities.base64Encode(JSON.stringify(effect)) + "</div>"
+  //appending the Effect division to html popup file
+  htmlPopup = htmlPopup.append(strEffect)
   //variables to append the sustainability dimensions as hidden division in the html file
   var strDimension = "<div id='susDimension' style='display:none;'>" + Utilities.base64Encode(JSON.stringify(dimension)) + "</div>"
   //appending the sustainability dimension to html file  
   htmlPopup = htmlPopup.append(strDimension)
   //getting the form visible to the user
-  DocumentApp.getUi().showModalDialog(htmlPopup, 'Feature tagging')
+  DocumentApp.getUi().showModalDialog(htmlPopup, 'Effect tagging')
 
 }
-
-
 
 async function processFeatures(formObject) {
   try {
@@ -235,11 +237,44 @@ async function processFeatures(formObject) {
     if (sheet) {
       /* Open spreadsheet */
       let currentSheet = SpreadsheetApp.openById(sheet.getId())
-      console.log("formObject", formObject.inputCategory, "subcat", formObject.inputSubCategory, formObject.topicSelection, formObject)
+      var lastRowInt = currentSheet.getLastRow()
+      var elementID = "ID"+lastRowInt.toString()
+      console.log("id", elementID, "formObject", formObject.inputCategory, "subcat", formObject.inputSubCategory, formObject.topicSelection, formObject)
 
-      currentSheet.appendRow([formObject.selectedFeature, formObject.susDimension, formObject.inputCategory, formObject.inputSubCategory, formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea])
+      currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, formObject.inputCategory, formObject.inputSubCategory, formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
     }
   } catch (e) {
     DocumentApp.getUi().alert("You don't have permission to write to parent folder. Please contact project owner.");
+  }
+}
+
+function populateDropdown(){
+  try{
+    var document = DocumentApp.getActiveDocument()
+    var file = DriveApp.getFileById(document.getId())
+    var folder = file.getParents().next()
+    var spreadsheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
+    var spreadsheet = spreadsheets.next()
+    var currentSheet = SpreadsheetApp.openById(spreadsheet.getId())
+    //we want values from the first column of the spreadsheet
+    var lastrow = currentSheet.getLastRow()
+    var effectColumn = currentSheet.getRange("B2:B" +lastrow)
+    console.log("this is first column",effectColumn)
+    var dropdownValues = []
+    var effectData = effectColumn.getValues();
+    for(var i = 0; i<effectData.length;i++){
+      console.log("effect data:" + i,effectData[i])
+      if (effectData[i]==""){
+        continue
+      }else{
+        dropdownValues.push(effectData[i])
+      }
+    }
+    console.log("first value is:", dropdownValues[1])
+    console.log("Dropdown values:",dropdownValues)
+    return dropdownValues
+  }catch (e){
+    console.log(e)
+    DocumentApp.getUi().alert("File was not found.")
   }
 }

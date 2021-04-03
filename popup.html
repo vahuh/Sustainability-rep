@@ -19,6 +19,7 @@
 	.row {
 		margin-left: 10px;
 	}
+  
 </style>
 
 <body>
@@ -83,50 +84,71 @@
 					<label for="memoArea">Memo</label>
 					<textarea class="form-control" id="memoArea" rows="4" cols="50"></textarea>
 				</div>
-
-				<button type="submit">Tag</button>
+        <label for="linkDdl">Leads to</label>   
+        <div class="form-group form-check-inline">     
+          <input type="text" placeholder="Search effect" id="effectInput" onkeyup="filterEffects(this.value)">
+          <select id="linkDdl" name="leadsTo" class="form-control">
+						<? for (var i = 0; i < dropdownOptions.length; i++) { ?>
+						<option value="<?= dropdownOptions[i] ?>">
+							<?= dropdownOptions[i] ?>
+            </option>
+						<? } ?>
+          </select>
+        </div>
+			<button type="submit">Tag</button>
 	</form>
 </body>
 
 <script type="text/javascript">
 	window.onload = initialize; 
-  window.addEventListener('load',preventSubmit)
+  //window.addEventListener('load',preventSubmit)
 
-//Function to get value of selected radio button 
-function getSelectedRadio(form, radioGroup){
-  var selectedRadio;
-  //Setting all Radios from a group to a list based on anme 
-  var radioList = form.elements[radioGroup]
-
-  //Loop that finds if a value is checked in the list and returns its value  
-  for (var i= 0, len=radioList.length;i<len;i++){
-    if(radioList[i].checked){
-      selectedRadio = radioList[i].value
-      break
+  //function to filterinput of user in dropdown
+  function filterEffects(keyword){
+    console.log("this is the keyword", keyword)
+    var dropdownMenu = document.getElementById("linkDdl")
+    for (var i = 0; i< dropdownMenu.length; i++){
+      var txt = dropdownMenu.options[i].text;
+      var include = txt.toLowerCase().includes(keyword.toLowerCase())
+      dropdownMenu.options[i].style.display = include ? 'list-item':'none'
     }
   }
-  return selectedRadio;
 
-}
+  //Function to get value of selected radio button 
+  function getSelectedRadio(form, radioGroup){
+    var selectedRadio;
+    //Setting all Radios from a group to a list based on anme 
+    var radioList = form.elements[radioGroup]
+
+    //Loop that finds if a value is checked in the list and returns its value  
+    for (var i= 0, len=radioList.length;i<len;i++){
+      if(radioList[i].checked){
+        selectedRadio = radioList[i].value
+        break
+      }
+    }
+    return selectedRadio;
+
+  }
 
 
 
-//function to initialize the html file with the data sent from main.gs
+  //function to initialize the html file with the data sent from main.gs
   function initialize(){
-    var encodedFeature = document.getElementById("selectedFeature").innerHTML
-    var feature = JSON.parse(atob(encodedFeature)) 
+    var encodedEffect = document.getElementById("selectedEffect").innerHTML
+    var effect = JSON.parse(atob(encodedEffect)) 
     var encodedDimension = document.getElementById("susDimension").innerHTML
     var dimension = JSON.parse(atob(encodedDimension))
     let form = document.getElementById("tagForm")
     let elem = document.createElement("h6")
-    elem.innerText = "Selected text: " + feature + " - Dimension: " + dimension
+    elem.innerText = "Selected effect: " + effect + " - Dimension: " + dimension
     form.insertBefore(elem, form.childNodes[0])
 
-    var featureElement = document.createElement("input")
-    featureElement.setAttribute("type","hidden")
-    featureElement.setAttribute("id","selectedFeature")
-    featureElement.setAttribute("value",feature)
-    document.getElementById("tagForm").appendChild(featureElement)
+    var effectElement = document.createElement("input")
+    effectElement.setAttribute("type","hidden")
+    effectElement.setAttribute("id","selectedEffect")
+    effectElement.setAttribute("value",effect)
+    document.getElementById("tagForm").appendChild(effectElement)
 
     var dimensionElement = document.createElement("input")
     dimensionElement.setAttribute("type","hidden")
@@ -137,13 +159,14 @@ function getSelectedRadio(form, radioGroup){
   }
   
   //function used to prevent forms from submitting
-  function preventSubmit(){
+  /*function preventSubmit(){
     var currentForm = document.querySelector('form')
     currentForm.addEventListener('submit',function(event){
       event.preventDefault()
     })
-  }
+  }*/
  
+  
  
   //function that calls function from google Script to process the elements entered in the form
 
@@ -172,5 +195,3 @@ function getSelectedRadio(form, radioGroup){
       
   }
 </script>
-
-</html>
