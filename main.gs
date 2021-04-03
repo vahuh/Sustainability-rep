@@ -208,7 +208,7 @@ function showPopup(feature, dimension) {
   // set width and height
   htmlPopup
     .setWidth(600)
-    .setHeight(700)
+    .setHeight(750)
   //variable to append the selected feature as hidden division in the html file
   var strFeature = "<div id='selectedFeature' style='display:none;'>" + Utilities.base64Encode(JSON.stringify(feature)) + "</div>"
   //appending the Feature division to html popup file
@@ -237,9 +237,11 @@ async function processFeatures(formObject) {
     if (sheet) {
       /* Open spreadsheet */
       let currentSheet = SpreadsheetApp.openById(sheet.getId())
-      console.log("formObject", formObject.inputCategory, "subcat", formObject.inputSubCategory, formObject.topicSelection, formObject)
-
-      currentSheet.appendRow([formObject.selectedFeature, formObject.susDimension, formObject.inputCategory, formObject.inputSubCategory, formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea])
+      var lastRowInt = currentSheet.getLastRow()
+      var elementID = "ID"+lastRowInt.toString()
+      console.log("id", elementID, "formObject", formObject.inputCategory, "subcat", formObject.inputSubCategory, formObject.topicSelection, formObject)
+      
+      currentSheet.appendRow([elementID, formObject.selectedFeature, formObject.susDimension, formObject.inputCategory, formObject.inputSubCategory, formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
     }
   } catch (e) {
     DocumentApp.getUi().alert("You don't have permission to write to parent folder. Please contact project owner.");
@@ -256,18 +258,21 @@ function populateDropdown(){
     var currentSheet = SpreadsheetApp.openById(spreadsheet.getId())
     //we want values from the first column of the spreadsheet
     var lastrow = currentSheet.getLastRow()
-    var firstColumn = currentSheet.getRange("A2:A" +lastrow)
-    console.log("this is first column",firstColumn)
+    var effectColumn = currentSheet.getRange("B2:B" +lastrow)
+    console.log("this is first column",effectColumn)
     var dropdownValues = []
-    var featureData = firstColumn.getValues();
+    var featureData = effectColumn.getValues();
     for(var i = 0; i<featureData.length;i++){
       console.log("feature data:" + i,featureData[i])
-      dropdownValues.push(featureData[i])
+      if (featureData[i]==""){
+        continue
+      }else{
+        dropdownValues.push(featureData[i])
+      }
     }
     console.log("first value is:", dropdownValues[1])
     console.log("Dropdown values:",dropdownValues)
     return dropdownValues
-    
   }catch (e){
     console.log(e)
     DocumentApp.getUi().alert("File was not found.")

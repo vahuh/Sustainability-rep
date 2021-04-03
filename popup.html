@@ -19,23 +19,6 @@
 	.row {
 		margin-left: 10px;
 	}
-
-  .dropdown-content{
-    display:none;
-  }
-
-  .dropdown-content a {
-    display: block
-  }
-
-  .dropdown {
-    position: relative;
-    display: inline-block;
-  }
-
-  .show{
-    display: block;
-  } 
   
 </style>
 
@@ -101,64 +84,56 @@
 					<label for="memoArea">Memo</label>
 					<textarea class="form-control" id="memoArea" rows="4" cols="50"></textarea>
 				</div>
-        <div class="form-group dropdown">
-          <button onclick="showElements()">Leads to</button>
-          <div id="linkDropdown" class="dropdown-content">
-            <input type="text" placeholder="Search..." id="leadsInput" onkeyup="filterFeatures('leadsInput','linkDropdown')">
-            <a href="#support">Support</a>
-            <? for (var i = 0; i< dropdownOptions.length;i++){ ?>
-              <a href="#<?= dropdownOptions[i]?>"><?= dropdownOptions[i]?></a>
-            <? } ?>
-          </div>
+        <label for="linkDdl">Leads to</label>   
+        <div class="form-group form-check-inline">     
+          <input type="text" placeholder="Search effect" id="effectInput" onkeyup="filterEffects(this.value)">
+          <select id="linkDdl" name="leadsTo" class="form-control">
+						<? for (var i = 0; i < dropdownOptions.length; i++) { ?>
+						<option value="<?= dropdownOptions[i] ?>">
+							<?= dropdownOptions[i] ?>
+            </option>
+						<? } ?>
+          </select>
         </div>
-
-				<button type="submit">Tag</button>
+			<button type="submit">Tag</button>
 	</form>
 </body>
 
 <script type="text/javascript">
 	window.onload = initialize; 
-  window.addEventListener('load',preventSubmit)
+  //window.addEventListener('load',preventSubmit)
 
-//Function to get value of selected radio button 
-function getSelectedRadio(form, radioGroup){
-  var selectedRadio;
-  //Setting all Radios from a group to a list based on anme 
-  var radioList = form.elements[radioGroup]
-
-  //Loop that finds if a value is checked in the list and returns its value  
-  for (var i= 0, len=radioList.length;i<len;i++){
-    if(radioList[i].checked){
-      selectedRadio = radioList[i].value
-      break
+  //function to filterinput of user in dropdown
+  function filterEffects(keyword){
+    console.log("this is the keyword", keyword)
+    var dropdownMenu = document.getElementById("linkDdl")
+    for (var i = 0; i< dropdownMenu.length; i++){
+      var txt = dropdownMenu.options[i].text;
+      var include = txt.toLowerCase().includes(keyword.toLowerCase())
+      dropdownMenu.options[i].style.display = include ? 'list-item':'none'
     }
   }
-  return selectedRadio;
 
-}
+  //Function to get value of selected radio button 
+  function getSelectedRadio(form, radioGroup){
+    var selectedRadio;
+    //Setting all Radios from a group to a list based on anme 
+    var radioList = form.elements[radioGroup]
 
-//function to filterinput of user in dropdown
-function filterFeatures(inputID,dropdownID){
-  var input = document.getElementById(inputID)
-  var filter = input.value.toUpperCase()
-  var dropdownMenu = document.getElementById(dropdownID)
-  var a = dropdownMenu.getElementsByTagName("a")
-  for (var i = 0; i < a.length;i++){
-    txtValue = a[i].textContent || a[i].innerText:
-    if(txtValue.toUpperCase().indexOf(filter) > -1){
-      a[i].style.display = ''
-    } else{
-      a[i].style.display="none"
+    //Loop that finds if a value is checked in the list and returns its value  
+    for (var i= 0, len=radioList.length;i<len;i++){
+      if(radioList[i].checked){
+        selectedRadio = radioList[i].value
+        break
+      }
     }
+    return selectedRadio;
+
   }
-}
 
-//when users clicks on the button to show dropdown, the list shows
- function showElements(){
-   document.getElementById("linkDropdown").classList.toggle("show")
- }
 
-//function to initialize the html file with the data sent from main.gs
+
+  //function to initialize the html file with the data sent from main.gs
   function initialize(){
     var encodedFeature = document.getElementById("selectedFeature").innerHTML
     var feature = JSON.parse(atob(encodedFeature)) 
@@ -184,13 +159,14 @@ function filterFeatures(inputID,dropdownID){
   }
   
   //function used to prevent forms from submitting
-  function preventSubmit(){
+  /*function preventSubmit(){
     var currentForm = document.querySelector('form')
     currentForm.addEventListener('submit',function(event){
       event.preventDefault()
     })
-  }
+  }*/
  
+  
  
   //function that calls function from google Script to process the elements entered in the form
 
@@ -219,5 +195,3 @@ function filterFeatures(inputID,dropdownID){
       
   }
 </script>
-
-</html>
