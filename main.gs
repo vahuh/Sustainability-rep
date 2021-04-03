@@ -191,10 +191,21 @@ function showPopup(effect, dimension) {
   let documentProperties = PropertiesService.getDocumentProperties();
   let topics = documentProperties.getProperty('TOPICS')
   let htmlTemplate = HtmlService.createTemplateFromFile('popup')
-  let ddOptions = populateDropdown()
+  let ddOptionDict = populateDropdown()
+  var ddValues = []
+
+  for (var id in ddOptionDict){
+    var contentArray = ddOptionDict[id]
+    var currentEffect = contentArray[0]
+    var currentDimension = contentArray[1]
+    var ddOption = currentEffect + " Dimension: "+ currentDimension + " ("+id+") "
+    console.log(ddOption)
+    ddValues.push(ddOption)
+
+  }
   //set feature dropdown options to template
-  htmlTemplate.dropdownOptions = ddOptions
-  console.log("test",ddOptions)
+  htmlTemplate.dropdownOptions = ddValues
+  console.log("test",ddValues)
 
   if (topics) {
     // set topics on template
@@ -256,21 +267,30 @@ function populateDropdown(){
     var spreadsheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
     var spreadsheet = spreadsheets.next()
     var currentSheet = SpreadsheetApp.openById(spreadsheet.getId())
-    //we want values from the first column of the spreadsheet
+    
+    //we want values from the first three columns of the spreadsheet
     var lastrow = currentSheet.getLastRow()
+    var idColumn = currentSheet.getRange("A2:A"+lastrow)
     var effectColumn = currentSheet.getRange("B2:B" +lastrow)
+    var dimensionColumn = currentSheet.getRange("C2:C"+lastrow)
+
     console.log("this is first column",effectColumn)
-    var dropdownValues = []
+    var dropdownValues = {}
+
+    var idData = idColumn.getValues();
     var effectData = effectColumn.getValues();
-    for(var i = 0; i<effectData.length;i++){
-      console.log("effect data:" + i,effectData[i])
-      if (effectData[i]==""){
+    var dimensionData = dimensionColumn.getValues();
+
+    for(var i = 0; i<idData.length;i++){
+      //if row is empty, we go to the following row
+      if (idData[i]==""){
         continue
       }else{
-        dropdownValues.push(effectData[i])
+        console.log("effect data",effectData[i],"dimensionData",dimensionData[i])
+        dropdownValues[idData[i]] = [effectData[i],dimensionData[i]]
       }
     }
-    console.log("first value is:", dropdownValues[1])
+    console.log("first value is:", dropdownValues)
     console.log("Dropdown values:",dropdownValues)
     return dropdownValues
   }catch (e){
