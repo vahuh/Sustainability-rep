@@ -135,20 +135,20 @@
 
   //function to initialize the html file with the data sent from main.gs
   function initialize(){
-    var encodedFeature = document.getElementById("selectedFeature").innerHTML
-    var feature = JSON.parse(atob(encodedFeature)) 
+    var encodedEffect = document.getElementById("selectedEffect").innerHTML
+    var effect = JSON.parse(atob(encodedEffect)) 
     var encodedDimension = document.getElementById("susDimension").innerHTML
     var dimension = JSON.parse(atob(encodedDimension))
     let form = document.getElementById("tagForm")
     let elem = document.createElement("h6")
-    elem.innerText = "Selected text: " + feature + " - Dimension: " + dimension
+    elem.innerText = "Selected effect: " + effect + " - Dimension: " + dimension
     form.insertBefore(elem, form.childNodes[0])
 
-    var featureElement = document.createElement("input")
-    featureElement.setAttribute("type","hidden")
-    featureElement.setAttribute("id","selectedFeature")
-    featureElement.setAttribute("value",feature)
-    document.getElementById("tagForm").appendChild(featureElement)
+    var effectElement = document.createElement("input")
+    effectElement.setAttribute("type","hidden")
+    effectElement.setAttribute("id","selectedEffect")
+    effectElement.setAttribute("value",effect)
+    document.getElementById("tagForm").appendChild(effectElement)
 
     var dimensionElement = document.createElement("input")
     dimensionElement.setAttribute("type","hidden")
