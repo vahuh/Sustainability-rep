@@ -91,7 +91,7 @@ function createSheetOnCurrentFolder() {
   let folder = file.getParents().next()
   /* Create SpreadSheet */
   let sheet = SpreadsheetApp.create("SuSaf output")
-  sheet.appendRow(['Effect', 'Dimension', 'Category', 'SubCategory', 'Topic', 'Impact', 'Order of effect', 'Memo','Predecessor','Leads to'])
+  sheet.appendRow(['ID','Effect', 'Dimension','Category', 'SubCategory','Topic', 'Impact', 'Order of effect', 'Memo','Leads to'])
 
   let sheetfile = DriveApp.getFileById(sheet.getId())
   /* Move sheet to current folder */
@@ -259,9 +259,9 @@ async function processFeatures(formObject) {
       let currentSheet = SpreadsheetApp.openById(sheet.getId())
       var lastRowInt = currentSheet.getLastRow()
       var elementID = "ID"+lastRowInt.toString()
-      console.log("id", elementID, "formObject", formObject.inputCategory, "subcat", formObject.inputSubCategory, formObject.topicSelection, formObject)
+      console.log("id", elementID, "formObject", "subcat", formObject.topicSelection, formObject)
 
-      currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, formObject.inputCategory, formObject.inputSubCategory, formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
+      currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension,"","", formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
       DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
     }
   } catch (e) {
