@@ -18,6 +18,9 @@ function tag(dimension) {
   }
 }
 
+function categorize(categoryType){
+  showCatPopup(categoryType)
+}
 
 //function used to get the text selected by the user  
 function getTextSelection(selection) {
@@ -233,6 +236,38 @@ function showPopup(effect, dimension) {
 
 }
 
+//function that shows the popup for categorizing an effect
+function showCatPopup(catType){
+  let htmlTemplate = HtmlService.createTemplateFromFile('categories')
+
+  let ddOptionDict = populateDropdown()
+  var ddValues = []
+  
+  if (!isEmpty(ddOptionDict)){
+    for (var id in ddOptionDict){
+    var contentArray = ddOptionDict[id]
+    var currentEffect = contentArray[0]
+    var currentDimension = contentArray[1]
+    var ddOption = currentEffect + " Dimension: "+ currentDimension + " ("+id+") "
+    ddValues.push(ddOption)
+    }
+  }
+  //set feature dropdown options to template
+  htmlTemplate.dropdownOptions = ddValues
+  console.log("test",ddValues)
+  
+  let htmlCategories = htmlTemplate.evaluate()
+  htmlCategories
+  .setWidth(600)
+  .setHeight(500)
+
+  var strCatType = "<div id='catType' style='display:none;'>" + Utilities.base64Encode(JSON.stringify(catType)) + "</div>"
+
+  htmlCategories = htmlCategories.append(strCatType)
+  DocumentApp.getUi().showModalDialog(htmlCategories,'Categorizing')
+
+}
+
 //function to check if a dictionary is empty
 function isEmpty(dictionary){
   for (var key in dictionary){
@@ -242,6 +277,7 @@ function isEmpty(dictionary){
   return true
 }
 
+//function to process the form from tagging an effect
 async function processFeatures(formObject) {
   try {
     let document = DocumentApp.getActiveDocument()
@@ -269,6 +305,7 @@ async function processFeatures(formObject) {
   }
 }
 
+//function that populates the effect dropdown
 function populateDropdown(){
   
   var document = DocumentApp.getActiveDocument()

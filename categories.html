@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<base target="_top">
+
+	<!-- The CSS package below applies Google styling to buttons and other elements. -->
+	<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+
+	<!-- The CSS package below applies Bootstrap styling to forms layout. -->
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+
+</head>
+
+<style>
+	.row {
+		margin-left: 10px;
+	}
+  
+</style>
+
+<body>
+	<form id="categoryForm" onsubmit="submitCategory(this)">
+				<label for="effectDdl">Leads to</label>   
+        <div class="form-group">     
+          <input type="text" placeholder="Search effect" id="effectInput" onkeyup="filterInput(this.value, getElementById(effectDdl).id)">
+          <select id="effectDdl" name="leadsTo" class="form-control">
+						<? for (var i = 0; i < dropdownOptions.length; i++) { ?>
+						<option value="<?= dropdownOptions[i] ?>">
+							<?= dropdownOptions[i] ?>
+            </option>
+						<? } ?>
+          </select>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="inputCategory"> Category </label>
+          <input type="text" class="form-control" id="inputCategory" name="category" placeholder="Enter category" >
+        </div>
+        <label for="catDdl">Choose existing (sub)category</label>
+        <div class="form-group">     
+          <input type="text" placeholder="Search category" id="categoryInput" onkeyup="filterInput(this.value, getElementById(catDdl).id)">
+          <select id="catDdl" name="category" class="form-control">
+          </select>
+        </div>
+				
+			<button type="submit">Confirm</button>
+	</form>
+</body>
+
+<script type="text/javascript">
+ window.onload = initialize
+
+ function initialize(){
+    var encodedCatType = document.getElementById("catType").innerHTML
+    var catType = JSON.parse(atob(encodedCatType)) 
+    let form = document.getElementById("categoryForm")
+    let elem = document.createElement("h2")
+    elem.innerText =  catType + " for existing effect"
+    form.insertBefore(elem, form.childNodes[0])
+  }
+
+  //function to filterinput of user in dropdown
+  function filterInput(keyword,elementID){
+    console.log("this is the keyword", keyword)
+    var dropdownMenu = document.getElementById(elementID)
+    for (var i = 0; i< dropdownMenu.length; i++){
+      var txt = dropdownMenu.options[i].text;
+      var include = txt.toLowerCase().includes(keyword.toLowerCase())
+      dropdownMenu.options[i].style.display = include ? 'list-item':'none'
+    }
+  }
+</script>
+</html>

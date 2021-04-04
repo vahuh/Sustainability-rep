@@ -77,9 +77,9 @@
       <br>
       You can define a category or subcategory for a defined tag
     </div>
-    <button class="button">Categorize</button>
+    <button class="button" type="button" onclick="categoryClick(this,'Category')">Categorize</button>
     <br>
-    <button class="button">SubCategorize</button>
+    <button class="button" type="button" onclick="categoryClick(this,'SubCategory')">SubCategorize</button>
     <br>
 
   </div>
@@ -100,7 +100,14 @@
     google.script.run
       .withUserObject(this)
       .tag(param)
-}
+  }
+
+  function categoryClick(event,param){
+    google.script.run
+    .withUserObject(this)
+    .categorize(param)
+  }
+
 
 
 </script>
