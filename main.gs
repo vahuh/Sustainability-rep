@@ -193,15 +193,15 @@ function showPopup(effect, dimension) {
   let htmlTemplate = HtmlService.createTemplateFromFile('popup')
   let ddOptionDict = populateDropdown()
   var ddValues = []
-
-  for (var id in ddOptionDict){
+  
+  if (!isEmpty(ddOptionDict)){
+    for (var id in ddOptionDict){
     var contentArray = ddOptionDict[id]
     var currentEffect = contentArray[0]
     var currentDimension = contentArray[1]
     var ddOption = currentEffect + " Dimension: "+ currentDimension + " ("+id+") "
-    console.log(ddOption)
     ddValues.push(ddOption)
-
+    }
   }
   //set feature dropdown options to template
   htmlTemplate.dropdownOptions = ddValues
@@ -233,6 +233,15 @@ function showPopup(effect, dimension) {
 
 }
 
+//function to check if a dictionary is empty
+function isEmpty(dictionary){
+  for (var key in dictionary){
+    if(dictionary.hasOwnProperty(key))
+    return false
+  }
+  return true
+}
+
 async function processFeatures(formObject) {
   try {
     let document = DocumentApp.getActiveDocument()
@@ -253,6 +262,7 @@ async function processFeatures(formObject) {
       console.log("id", elementID, "formObject", formObject.inputCategory, "subcat", formObject.inputSubCategory, formObject.topicSelection, formObject)
 
       currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, formObject.inputCategory, formObject.inputSubCategory, formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
+      DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
     }
   } catch (e) {
     DocumentApp.getUi().alert("You don't have permission to write to parent folder. Please contact project owner.");
@@ -260,22 +270,22 @@ async function processFeatures(formObject) {
 }
 
 function populateDropdown(){
-  try{
-    var document = DocumentApp.getActiveDocument()
-    var file = DriveApp.getFileById(document.getId())
-    var folder = file.getParents().next()
-    var spreadsheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
+  
+  var document = DocumentApp.getActiveDocument()
+  var file = DriveApp.getFileById(document.getId())
+  var folder = file.getParents().next()
+  var spreadsheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
+  var dropdownValues = {}
+
+  if (spreadsheets.hasNext()){
     var spreadsheet = spreadsheets.next()
     var currentSheet = SpreadsheetApp.openById(spreadsheet.getId())
-    
+  
     //we want values from the first three columns of the spreadsheet
     var lastrow = currentSheet.getLastRow()
     var idColumn = currentSheet.getRange("A2:A"+lastrow)
     var effectColumn = currentSheet.getRange("B2:B" +lastrow)
     var dimensionColumn = currentSheet.getRange("C2:C"+lastrow)
-
-    console.log("this is first column",effectColumn)
-    var dropdownValues = {}
 
     var idData = idColumn.getValues();
     var effectData = effectColumn.getValues();
@@ -286,15 +296,11 @@ function populateDropdown(){
       if (idData[i]==""){
         continue
       }else{
-        console.log("effect data",effectData[i],"dimensionData",dimensionData[i])
         dropdownValues[idData[i]] = [effectData[i],dimensionData[i]]
       }
     }
-    console.log("first value is:", dropdownValues)
-    console.log("Dropdown values:",dropdownValues)
-    return dropdownValues
-  }catch (e){
-    console.log(e)
-    DocumentApp.getUi().alert("File was not found.")
+  }else{
+    dropdownValues = {}
   }
+  return dropdownValues
 }
