@@ -171,7 +171,7 @@ function askTopics() {
   let documentProperties = PropertiesService.getDocumentProperties();
   let topics = documentProperties.getProperty('TOPICS');
   let ui = DocumentApp.getUi();
-  let response = ui.prompt('List of topics', topics + '\nSeparate topics with comma', ui.ButtonSet.YES_NO);
+  let response = ui.prompt('List of topics', topics + '\n\nSeparate topics with comma.\n\nDo you want to overwrite existing topics?', ui.ButtonSet.YES_NO_CANCEL);
 
   // Process the user's response.
   if (response.getSelectedButton() == ui.Button.YES) {
@@ -180,6 +180,8 @@ function askTopics() {
     documentProperties.setProperty('TOPICS', text);
   } else if (response.getSelectedButton() == ui.Button.NO) {
     // the user clicked no
+    let text = response.getResponseText();
+    documentProperties.setProperty('TOPICS', topics + "," + text);
   } else {
     // the user closed popup
   }
