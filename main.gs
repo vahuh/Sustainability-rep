@@ -304,8 +304,6 @@ function processCategories(formObject, catType){
     var currentSheet = SpreadsheetApp.openById(spreadsheet.getId())
     var lastrow = currentSheet.getLastRow()
     var idColumn = currentSheet.getRange("A2:A"+lastrow)
-    var catColumn = currentSheet.getRange("D2:D"+lastrow)
-    var subCatColumn = currentSheet.getRange("E2:E"+lastrow)
 
     try{
       categorizedEffect = formObject.effectDdl
@@ -333,18 +331,48 @@ function processCategories(formObject, catType){
       rowNumberStr = rowNumber.toString()
       if (catType == "Category"){
         var catCell = currentSheet.getRange("D"+rowNumberStr+":D"+rowNumberStr).getCell(1,1)
-        catCell.setValue('this is test') 
-      }
+        if (catCell.getValue() != ''){
+          checkChoice(catCell,catType,"this is a test")
+          } 
+          else{
+          catCell.setValue('test two');
+          }
+          }
       else if(catType == "SubCategory"){
         var subCatCell = currentSheet.getRange("E"+rowNumberStr+":E"+rowNumberStr).getCell(1,1)
-        subCatCell.setValue('this is test') 
+        if (subCatCell.getValue() !=''){
+          checkChoice(subCatCell,catType,"test two")
+        }
+        else{
+          subCatCell.setValue('testing')
+        } 
       }
-    
     }
     
   }
 }
 
+/** Function that asks the user if they are sure that they want to change the value 
+ * Function is called when a value is already set in the cell 
+ */
+
+function checkChoice(cell, catType, newText){
+  let ui = DocumentApp.getUi()
+  let answer = ui.alert('Current '+catType+' value: '+cell.getValue(),'Are you sure you want to overwrite current value?', ui.ButtonSet.YES_NO)
+  if (answer == ui.Button.YES) {
+    cell.setValue(newText);
+    }
+    else{
+      ui.alert("Value change cancelled")
+      }
+}
+
+/*function checkCat(catType, inputValue, ddlValue){
+  if (inputValue != ""){
+
+  }
+
+}*/
 
 /**
  * Function to get ID associated with an effect from dropdown list 
