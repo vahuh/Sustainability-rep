@@ -1,9 +1,12 @@
 /* 
   Sustainability reporting plugin 
-  
-  
  */
 
+
+/**Function that tags a selected text with the selected dimension 
+ * Takes the dimension from the button clicked by the user
+ * If no text is selected, the user gets an alert to select text 
+ */
 function tag(dimension) {
   let document = DocumentApp.getActiveDocument()
   let selection = document.getSelection()
@@ -174,7 +177,7 @@ function askTopics() {
   let documentProperties = PropertiesService.getDocumentProperties();
   let topics = documentProperties.getProperty('TOPICS');
   let ui = DocumentApp.getUi();
-  let response = ui.prompt('List of topics', topics + '\nSeparate topics with comma', ui.ButtonSet.YES_NO);
+  let response = ui.prompt('List of topics', topics + '\n\nSeparate topics with comma.\n\nDo you want to overwrite existing topics?', ui.ButtonSet.YES_NO_CANCEL);
 
   // Process the user's response.
   if (response.getSelectedButton() == ui.Button.YES) {
@@ -183,10 +186,30 @@ function askTopics() {
     documentProperties.setProperty('TOPICS', text);
   } else if (response.getSelectedButton() == ui.Button.NO) {
     // the user clicked no
+    let text = response.getResponseText();
+    documentProperties.setProperty('TOPICS', topics + "," + text);
   } else {
     // the user closed popup
   }
 }
+
+/**
+ * Function to set Category or SubCategory properties for document
+ * It appends new categories or subcategories to document properties 
+ */
+function setCatProperties(catType, inputText){
+  //Get Previous properties 
+  let documentProperties = PropertiesService.getDocumentProperties();
+  let categories = documentProperties.getProperty('CATEGORIES')
+  let subCategories = documentProperties.getProperty('SUBCATEGORIES')
+  if (catType == 'Category'){
+    documentProperties.setProperty('CATEGORIES', categories + "," + inputText);
+  }
+  else if(catType == 'SubCategory'){
+    documentProperties.setProperty('SUBCATEGORIES', subCategories + "," + inputText);
+  }
+}
+
 
 // Function to show the Pop Up 
 function showPopup(effect, dimension) {
@@ -236,7 +259,10 @@ function showPopup(effect, dimension) {
 
 }
 
-//function that shows the popup for categorizing an effect
+/**Function that shows the popup for categorizing an effect
+ * Gets all the existing effect values and pushes them to a list that is visible to the user on the effect selection dropdown 
+ * No values are added if there are no existing values 
+*/
 function showCatPopup(catType){
   let htmlTemplate = HtmlService.createTemplateFromFile('categories')
 
@@ -252,7 +278,7 @@ function showCatPopup(catType){
     ddValues.push(ddOption)
     }
   }
-  //set feature dropdown options to template
+  //set effect dropdown options to template
   htmlTemplate.dropdownOptions = ddValues
   console.log("test",ddValues)
   
@@ -265,6 +291,67 @@ function showCatPopup(catType){
 
   htmlCategories = htmlCategories.append(strCatType)
   DocumentApp.getUi().showModalDialog(htmlCategories,'Categorizing')
+}
+
+function processCategories(formObject, catType){
+  var document = DocumentApp.getActiveDocument()
+  var file = DriveApp.getFileById(document.getId())
+  var folder = file.getParents().next()
+  var spreadsheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
+
+  if (spreadsheets.hasNext()){
+    var spreadsheet = spreadsheets.next()
+    var currentSheet = SpreadsheetApp.openById(spreadsheet.getId())
+    var lastrow = currentSheet.getLastRow()
+    var idColumn = currentSheet.getRange("A2:A"+lastrow)
+    var catColumn = currentSheet.getRange("D2:D"+lastrow)
+    var subCatColumn = currentSheet.getRange("E2:E"+lastrow)
+
+    try{
+      categorizedEffect = formObject.effectDdl
+      selectedID = findEffectID(categorizedEffect)
+      console.log('selected ID:',selectedID)
+    }catch (e){
+      DocumentApp.getUi.alert("An error occured, ID couldn't be found.")
+    }
+
+    var idData = idColumn.getValues()
+    var effectRow = null
+    for(var i = 0; i<idData.length;i++){
+      //if value is equal to ID, we return the value
+      if (idData[i]==selectedID){
+        effectRow = i
+        break
+      }
+    }
+
+//still needs to add categories to specific property in doc, in order to get the ddl working
+    if (effectRow == null){
+      DocumentApp.getUi.alert("No match found for ID")
+    }else {
+      rowNumber = effectRow + 2
+      rowNumberStr = rowNumber.toString()
+      if (catType == "Category"){
+        var catCell = currentSheet.getRange("D"+rowNumberStr+":D"+rowNumberStr).getCell(1,1)
+        catCell.setValue('this is test') 
+      }
+      else if(catType == "SubCategory"){
+        var subCatCell = currentSheet.getRange("E"+rowNumberStr+":E"+rowNumberStr).getCell(1,1)
+        subCatCell.setValue('this is test') 
+      }
+    
+    }
+    
+  }
+}
+
+
+/**
+ * Function to get ID associated with an effect from dropdown list 
+ * Works only if only one set of '()' is present in the input string */ 
+function findEffectID(textString){
+  effectID = textString.split('(').pop().split(')')[0]
+  return effectID
 
 }
 
@@ -277,7 +364,10 @@ function isEmpty(dictionary){
   return true
 }
 
-//function to process the form from tagging an effect
+/**function to process the form from tagging an effect
+ * If the user does not have approriate authorization to access parent folder of the file, the spreadsheet cannot be created or updated 
+ * In such case, the user is alerted to ask project owner to give editor rights 
+*/
 async function processFeatures(formObject) {
   try {
     let document = DocumentApp.getActiveDocument()
@@ -305,7 +395,11 @@ async function processFeatures(formObject) {
   }
 }
 
-//function that populates the effect dropdown
+
+/** Function used to populate effect dropdown 
+ * This function gets the tagged effect with its ID and associated dimension from SpreadSheet 
+ * It returns a dictionnary where each ID is associated with an effect and a dimension 
+ */
 function populateDropdown(){
   
   var document = DocumentApp.getActiveDocument()
