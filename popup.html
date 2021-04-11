@@ -77,6 +77,7 @@
         <div class="form-group">     
           <input type="text" placeholder="Search effect" id="effectInput" onkeyup="filterEffects(this.value)">
           <select id="linkDdl" name="leadsTo" class="form-control">
+            <option value="">None</option>
 						<? for (var i = 0; i < dropdownOptions.length; i++) { ?>
 						<option value="<?= dropdownOptions[i] ?>">
 							<?= dropdownOptions[i] ?>
