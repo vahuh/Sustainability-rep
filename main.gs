@@ -21,11 +21,9 @@ function tag(dimension) {
   }
 }
 
-function categorize(categoryType){
-  showCatPopup(categoryType)
-}
 
-//function used to get the text selected by the user  
+/** Function that gets the selected text from the user 
+ * Returns the user selection as a string so that it can be used */ 
 function getTextSelection(selection) {
   var textAsString = ""
   var selectedText = ""
@@ -89,7 +87,7 @@ function highlightSelectedText(selection, dimension) {
   }
 }
 
-/* Function to create Sheets in current folder */
+/** Function to create Sheets in current folder */  
 function createSheetOnCurrentFolder() {
   /* Get current folder */
   let document = DocumentApp.getActiveDocument()
@@ -195,7 +193,8 @@ function askTopics() {
 
 /**
  * Function to set Category or SubCategory properties for document
- * It appends new categories or subcategories to document properties 
+ * It appends new categories or subcategories to document properties
+ * If document categories are empty, the new value is directly added as first value 
  */
 function setCatProperties(catType, inputText){
   //Get Previous properties 
@@ -203,15 +202,45 @@ function setCatProperties(catType, inputText){
   let categories = documentProperties.getProperty('CATEGORIES')
   let subCategories = documentProperties.getProperty('SUBCATEGORIES')
   if (catType == 'Category'){
-    documentProperties.setProperty('CATEGORIES', categories + "," + inputText);
+    if (!addCatProperty(categories,inputText)){
+      if (categories == null){
+        documentProperties.setProperties('CATEGORIES',inputText)
+      }
+      else{
+        documentProperties.setProperty('CATEGORIES', categories + "," + inputText);
+      }
+    }
   }
   else if(catType == 'SubCategory'){
-    documentProperties.setProperty('SUBCATEGORIES', subCategories + "," + inputText);
+    if (!addCatProperty(subCategories,inputText)){
+      if (subcategories == null){
+        documentProperties.setProperties('SUBCATEGORIES',inputText)
+      }else{
+        documentProperties.setProperty('SUBCATEGORIES', subCategories + "," + inputText);
+      }
+    }
   }
 }
 
 
-// Function to show the Pop Up 
+/** Function to check if a category or subcategory value is already existing in the document properties 
+ * If not, the function returns false
+ * If yes, the function returns true
+ */
+function addCatProperty(propertyValues,newProperty){
+  propertyValueList = propertyValues.split(',')
+  for (var i in propertyValueList){
+    if (propertyValueList[i].toString() == newProperty.toString()){
+      return true
+    }
+  }
+}
+
+
+/** Function that shows the popup for tagging selected text 
+ * It adds the defined topics to a dropdown in the window 
+ * It adds the already tagged effects from spreadsheet in the "leads to" dropdown list
+ */
 function showPopup(effect, dimension) {
   // Get document topics
   let documentProperties = PropertiesService.getDocumentProperties();
@@ -259,16 +288,60 @@ function showPopup(effect, dimension) {
 
 }
 
+//function used to check if a value is already in a list, returns true if it is the case
+function checkValuePresence(list, text){
+  for (var i in list){
+    if (list[i]==text){
+      return true
+    }
+  }
+}
+
 /**Function that shows the popup for categorizing an effect
  * Gets all the existing effect values and pushes them to a list that is visible to the user on the effect selection dropdown 
  * No values are added if there are no existing values 
 */
 function showCatPopup(catType){
+  let documentProperties = PropertiesService.getDocumentProperties()
+  let categories = documentProperties.getProperty('CATEGORIES')
+  let subCategories = documentProperties.getProperty('SUBCATEGORIES')
   let htmlTemplate = HtmlService.createTemplateFromFile('categories')
-
   let ddOptionDict = populateDropdown()
   var ddValues = []
+  var catValues = []
+  var subCatValues = []
   
+  if (catType == 'Category'){
+    if (categories){
+      var existingCategories = categories.split(",")
+      for (var i in existingCategories){
+        //Only distinct strings are sent to html, if the element is null, it is also left out
+        if (!checkValuePresence(catValues, existingCategories[i]) && existingCategories[i] != 'null'){
+          catValues.push(existingCategories[i])
+        }
+        else if (existingCategories[i]=='null'){
+          continue
+        }
+      }
+      htmlTemplate.data = catValues
+    }else{
+      htmlTemplate.data = []
+    }
+  }else if (catType == 'SubCategory'){
+    if (subCategories){
+      var existingSubCategories = subCategories.split(",")
+      for (var i in existingSubCategories){
+        //Only distinct strings are sent to html, if the element is null, it is also left out
+        if (!checkValuePresence(catValues, existingSubCategories[i]) && existingSubCategories[i] != 'null'){
+          subCatValues.push(existingSubCategories[i])
+        }
+      }
+      htmlTemplate.data = subCatValues
+    }else{
+      htmlTemplate.data = []
+    }
+  }
+
   if (!isEmpty(ddOptionDict)){
     for (var id in ddOptionDict){
     var contentArray = ddOptionDict[id]
@@ -293,6 +366,14 @@ function showCatPopup(catType){
   DocumentApp.getUi().showModalDialog(htmlCategories,'Categorizing')
 }
 
+
+/** Submit function from button in categories.html 
+ * It takes as an input all the elements that have an id in the html form and the category type 
+ * Category type is defined by the initial button click when opening the categorization page
+ * The function checks if the selected effect is already associated with a category or subcategory 
+ * If it is the case, it is checked from the user if the value should be overwritten
+ * When there is no value associated with the effect, the category or subcategory value is set in the corresponding cell in spreadsheet
+ */
 function processCategories(formObject, catType){
   var document = DocumentApp.getActiveDocument()
   var file = DriveApp.getFileById(document.getId())
@@ -304,6 +385,9 @@ function processCategories(formObject, catType){
     var currentSheet = SpreadsheetApp.openById(spreadsheet.getId())
     var lastrow = currentSheet.getLastRow()
     var idColumn = currentSheet.getRange("A2:A"+lastrow)
+    var idData = idColumn.getValues()
+    var effectRow = null
+    var catText = checkInputType(formObject.inputCategory,formObject.catDdl)
 
     try{
       categorizedEffect = formObject.effectDdl
@@ -312,9 +396,7 @@ function processCategories(formObject, catType){
     }catch (e){
       DocumentApp.getUi.alert("An error occured, ID couldn't be found.")
     }
-
-    var idData = idColumn.getValues()
-    var effectRow = null
+    
     for(var i = 0; i<idData.length;i++){
       //if value is equal to ID, we return the value
       if (idData[i]==selectedID){
@@ -323,33 +405,52 @@ function processCategories(formObject, catType){
       }
     }
 
-//still needs to add categories to specific property in doc, in order to get the ddl working
     if (effectRow == null){
       DocumentApp.getUi.alert("No match found for ID")
     }else {
       rowNumber = effectRow + 2
       rowNumberStr = rowNumber.toString()
+      setCatProperties(catType,catText)
       if (catType == "Category"){
         var catCell = currentSheet.getRange("D"+rowNumberStr+":D"+rowNumberStr).getCell(1,1)
+
         if (catCell.getValue() != ''){
-          checkChoice(catCell,catType,"this is a test")
+          checkChoice(catCell,catType,catText)
           } 
           else{
-          catCell.setValue('test two');
+          catCell.setValue(catText);
           }
           }
       else if(catType == "SubCategory"){
         var subCatCell = currentSheet.getRange("E"+rowNumberStr+":E"+rowNumberStr).getCell(1,1)
         if (subCatCell.getValue() !=''){
-          checkChoice(subCatCell,catType,"test two")
+          checkChoice(subCatCell,catType,catText)
         }
         else{
-          subCatCell.setValue('testing')
+          subCatCell.setValue(catText)
         } 
       }
     }
     
   }
+}
+
+
+/** Function to check if the value for category or subcategory comes from input field or ddl 
+ * If there is an existing value in input field, it is taken as the (sub)category value 
+ * If input field is left empty, the category will be set as the ddl value 
+ * If both values are empty, an empty string is returned 
+ */
+function checkInputType(inputValue, ddlValue){
+  let finalCatValue = ''
+  if (inputValue != ''){
+    finalCatValue = inputValue
+  }else if(ddlValue != '' && inputValue == ''){
+    finalCatValue = ddlValue
+  }else{
+    finalCatValue
+  }
+  return finalCatValue
 }
 
 /** Function that asks the user if they are sure that they want to change the value 
@@ -367,12 +468,6 @@ function checkChoice(cell, catType, newText){
       }
 }
 
-/*function checkCat(catType, inputValue, ddlValue){
-  if (inputValue != ""){
-
-  }
-
-}*/
 
 /**
  * Function to get ID associated with an effect from dropdown list 

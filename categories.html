@@ -44,7 +44,15 @@
         <div class="form-group">     
           <input type="text" placeholder="Search category" id="categoryInput" onkeyup="filterInput(this.value, getElementById(catDdl).id)">
           <select id="catDdl" name="category" class="form-control">
-          </select>
+          <!-- Loop over data property -->
+						<? for (var i = 0; i < data.length; i++) { ?>
+            <!-- Create one option per entry in data list -->
+						<option value="<?= data[i] ?>">
+							<?= data[i] ?>
+            </option>
+						<? } ?>
+            <!-- End loop -->
+					</select>
         </div>
 				
 			<button type="submit">Confirm</button>
