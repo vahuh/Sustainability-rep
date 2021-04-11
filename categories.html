@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<base target="_top">
+
+	<!-- The CSS package below applies Google styling to buttons and other elements. -->
+	<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+
+	<!-- The CSS package below applies Bootstrap styling to forms layout. -->
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+
+</head>
+
+<style>
+	.row {
+		margin-left: 10px;
+	}
+  
+</style>
+
+<body>
+  <p>If input field is not empty, the assigned value will automatically be the one in input field.</p>
+	<form id="categoryForm" onsubmit="submitCategory(this)">
+				<label for="effectDdl">Leads to</label>   
+        <div class="form-group">     
+          <input type="text" placeholder="Search effect" id="effectInput" onkeyup="filterInput(this.value, getElementById(effectDdl).id)">
+          <select id="effectDdl" name="effect" class="form-control">
+						<? for (var i = 0; i < dropdownOptions.length; i++) { ?>
+						<option value="<?= dropdownOptions[i] ?>">
+							<?= dropdownOptions[i] ?>
+            </option>
+						<? } ?>
+          </select>
+        </div>
+        <div class="form-group col-md-6">
+          <label id="inputLabel" for="inputCategory"></label>
+          <input type="text" class="form-control" id="inputCategory" name="category" placeholder="Enter category" >
+        </div>
+        <label id="ddlLabel" for="catDdl"></label>
+        <div class="form-group">     
+          <input type="text" placeholder="Search category" id="categoryInput" onkeyup="filterInput(this.value, getElementById(catDdl).id)">
+          <select id="catDdl" name="category" class="form-control">
+          <!-- Loop over data property -->
+						<? for (var i = 0; i < data.length; i++) { ?>
+            <!-- Create one option per entry in data list -->
+						<option value="<?= data[i] ?>">
+							<?= data[i] ?>
+            </option>
+						<? } ?>
+            <!-- End loop -->
+					</select>
+        </div>
+				
+			<button type="submit">Confirm</button>
+	</form>
+</body>
+
+<script type="text/javascript">
+ window.onload = initialize
+
+/**
+ * Function that initializes the popup 
+ * Label for input field and ddl change based on selection of categorization or subcategorization 
+ * Displays a header to user letting know which categorization type is selected
+*/
+ function initialize(){
+    var encodedCatType = document.getElementById("catType").innerHTML
+    var catType = JSON.parse(atob(encodedCatType)) 
+    let form = document.getElementById("categoryForm")
+    let elem = document.createElement("h2")
+    let catLabel = document.getElementById("inputLabel")
+    let catDdlLabel = document.getElementById("ddlLabel")
+    elem.innerText =  catType + " for existing effect"
+    catLabel.innerText = catType
+    catDdlLabel.innerText = "Select existing " + catType
+    form.insertBefore(elem, form.childNodes[0])
+  }
+
+
+  //function to filter input of user in dropdown
+  function filterInput(keyword,elementID){
+    console.log("this is the keyword", keyword)
+    var dropdownMenu = document.getElementById(elementID)
+    for (var i = 0; i< dropdownMenu.length; i++){
+      var txt = dropdownMenu.options[i].text;
+      var include = txt.toLowerCase().includes(keyword.toLowerCase())
+      dropdownMenu.options[i].style.display = include ? 'list-item':'none'
+    }
+  }
+
+  function submitCategory(formObject){
+    var encodedCatType = document.getElementById("catType").innerHTML
+    var catType = JSON.parse(atob(encodedCatType)) 
+        
+    let elements = Array.from(formObject.elements)
+    let obj = {}
+
+    //adding each element having an ID into the obj dictionnary 
+    elements.forEach(e => {
+      if (e.id){
+        obj[e.id] = e.value
+      }
+    })
+ 
+    google.script.run.processCategories(obj, catType)
+    document.getElementById("categoryForm").reset()
+    //closing window after submitting
+    google.script.host.close()
+      
+  }
+</script>
+</html>
