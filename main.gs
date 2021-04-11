@@ -259,11 +259,24 @@ async function processFeatures(formObject) {
     if (sheet) {
       /* Open spreadsheet */
       let currentSheet = SpreadsheetApp.openById(sheet.getId())
-      var lastRowInt = currentSheet.getLastRow()
-      var elementID = "ID"+lastRowInt.toString()
+      let lastRowInt = currentSheet.getLastRow()
+      let elementID = "ID" + lastRowInt.toString()
       console.log("id", elementID, "formObject", "subcat", formObject.topicSelection, formObject)
-
-      currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension,"","", formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
+      let data = currentSheet.getDataRange().getValues();
+      let ind = null;
+      for (var i = 0; i < data.length; i++) {
+        if (data[i][1] == formObject.selectedEffect) {
+          ind = i
+          break;
+        }
+      }
+      if (i != null) {
+        let range = currentSheet.getRange(`A${i + 1}:J${i + 1}`)
+        range.setValues([elementID, formObject.selectedEffect, formObject.susDimension, "", "", formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
+      }
+      else {
+        currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, "", "", formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
+      }
       DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
     }
   } catch (e) {
