@@ -21,6 +21,9 @@ function tag(dimension) {
   }
 }
 
+function categorize(categoryType){
+  showCatPopup(categoryType)
+}
 
 /** Function that gets the selected text from the user 
  * Returns the user selection as a string so that it can be used */ 
