@@ -469,9 +469,9 @@ function checkChoice(cell, catType, newText){
 }
 
 /** Function used to check if the user is sure to edit an existing tag or not */
-function checkEdit(dimension){
+function checkEdit(){
   let ui = DocumentApp.getUi()
-  let response = ui.alert('This effect has already been tagged with '+ dimension,'Are you sure you want to overwrite current value?', ui.ButtonSet.YES_NO)
+  let response = ui.alert('This effect has already been tagged with the same dimension','Are you sure you want to overwrite current values?', ui.ButtonSet.YES_NO)
   if (response == ui.Button.YES){
     return true
   }
@@ -533,23 +533,27 @@ async function processFeatures(formObject) {
       if (ind != null) {
         let range = currentSheet.getRange(`B${ind + 1}:J${ind + 1}`)
         let currentDim = currentSheet.getRange(`C${ind + 1}:C${ind + 1}`).getCell(1,1).getValue()
-        let userChoice = checkEdit(currentDim)
-        if (userChoice){
+        if (formObject.susDimension == currentDim){
+          let userChoice = checkEdit()
+          if (userChoice){
           range.setValues([[formObject.selectedEffect, formObject.susDimension, "", "", formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl]])
           DocumentApp.getUi().alert("Tag was edited succesfully in spreadsheet")
-        }
-        else {
+          }
+          else {
           DocumentApp.getUi().alert("Tag was not edited")
+          }
+        }else {
+          currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, "", "", formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
+          DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
         }
-      }
-      else {
+      }else {
         currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, "", "", formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
         DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
       }
     }
   } catch (e) {
     DocumentApp.getUi().alert("You don't have permission to write to parent folder. Please contact project owner.");
-  }
+    }
 }
 
 
