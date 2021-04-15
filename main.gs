@@ -196,26 +196,26 @@ function askTopics() {
  * It appends new categories or subcategories to document properties
  * If document categories are empty, the new value is directly added as first value 
  */
-function setCatProperties(catType, inputText){
+function setCatProperties(catType, inputText) {
   //Get Previous properties 
   let documentProperties = PropertiesService.getDocumentProperties();
   let categories = documentProperties.getProperty('CATEGORIES')
   let subCategories = documentProperties.getProperty('SUBCATEGORIES')
-  if (catType == 'Category'){
-    if (!addCatProperty(categories,inputText)){
-      if (categories == null){
-        documentProperties.setProperties('CATEGORIES',inputText)
+  if (catType == 'Category') {
+    if (!addCatProperty(categories, inputText)) {
+      if (categories == null) {
+        documentProperties.setProperty('CATEGORIES', inputText)
       }
-      else{
+      else {
         documentProperties.setProperty('CATEGORIES', categories + "," + inputText);
       }
     }
   }
-  else if(catType == 'SubCategory'){
-    if (!addCatProperty(subCategories,inputText)){
-      if (subcategories == null){
-        documentProperties.setProperties('SUBCATEGORIES',inputText)
-      }else{
+  else if (catType == 'SubCategory') {
+    if (!addCatProperty(subCategories, inputText)) {
+      if (subCategories == null) {
+        documentProperties.setProperty('SUBCATEGORIES', inputText)
+      } else {
         documentProperties.setProperty('SUBCATEGORIES', subCategories + "," + inputText);
       }
     }
@@ -227,10 +227,10 @@ function setCatProperties(catType, inputText){
  * If not, the function returns false
  * If yes, the function returns true
  */
-function addCatProperty(propertyValues,newProperty){
-  propertyValueList = propertyValues.split(',')
-  for (var i in propertyValueList){
-    if (propertyValueList[i].toString() == newProperty.toString()){
+function addCatProperty(propertyValues, newProperty) {
+  propertyValueList = (propertyValues || "").split(',')
+  for (var i in propertyValueList) {
+    if (propertyValueList[i].toString() == newProperty.toString()) {
       return true
     }
   }
@@ -311,15 +311,15 @@ function showCatPopup(catType){
   var catValues = []
   var subCatValues = []
   
-  if (catType == 'Category'){
-    if (categories){
-      var existingCategories = categories.split(",")
-      for (var i in existingCategories){
+  if (catType == 'Category') {
+    if (categories) {
+      var existingCategories = (categories || "").split(",")
+      for (var i in existingCategories) {
         //Only distinct strings are sent to html, if the element is null, it is also left out
-        if (!checkValuePresence(catValues, existingCategories[i]) && existingCategories[i] != 'null'){
+        if (!checkValuePresence(catValues, existingCategories[i]) && existingCategories[i] != 'null') {
           catValues.push(existingCategories[i])
         }
-        else if (existingCategories[i]=='null'){
+        else if (existingCategories[i] == 'null') {
           continue
         }
       }
