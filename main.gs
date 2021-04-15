@@ -95,7 +95,7 @@ function createSheetOnCurrentFolder() {
   let folder = file.getParents().next()
   /* Create SpreadSheet */
   let sheet = SpreadsheetApp.create("SuSaf output")
-  sheet.appendRow(['ID', 'Effect', 'Dimension', 'Category', 'SubCategory', 'Topic', 'Impact', 'Order of effect', 'Memo', 'Leads to'])
+  sheet.appendRow(['ID', 'Effect', 'Dimension', 'Category', 'SubCategory', 'Feature', 'Impact', 'Order of effect', 'Memo', 'Leads to'])
 
   let sheetfile = DriveApp.getFileById(sheet.getId())
   /* Move sheet to current folder */
@@ -135,7 +135,7 @@ function toCsv() {
 function onOpen(e) {
   DocumentApp.getUi().createAddonMenu()
     .addItem('Start', 'showSidebar')
-    .addItem('Topic list', 'askTopics')
+    .addItem('Feature list', 'askFeatures')
     .addToUi();
 }
 
@@ -170,22 +170,22 @@ function showSidebar() {
 *  Display a dialog box with a title, message, input field, and "Yes" and "No" buttons.
 *  The user can also close the dialog by clicking the close button in its title bar.
 */
-function askTopics() {
+function askFeatures() {
   // Get previous properties
   let documentProperties = PropertiesService.getDocumentProperties();
-  let topics = documentProperties.getProperty('TOPICS');
+  let features = documentProperties.getProperty('FEATURES');
   let ui = DocumentApp.getUi();
-  let response = ui.prompt('List of topics', topics + '\n\nSeparate topics with comma.\n\nDo you want to overwrite existing topics?', ui.ButtonSet.YES_NO_CANCEL);
+  let response = ui.prompt('List of features', features + '\n\nSeparate features with comma.\n\nDo you want to overwrite existing features?', ui.ButtonSet.YES_NO_CANCEL);
 
   // Process the user's response.
   if (response.getSelectedButton() == ui.Button.YES) {
-    // Got response, save as new topic list
+    // Got response, save as new feature list
     let text = response.getResponseText();
-    documentProperties.setProperty('TOPICS', text);
+    documentProperties.setProperty('FEATURES', text);
   } else if (response.getSelectedButton() == ui.Button.NO) {
     // the user clicked no
     let text = response.getResponseText();
-    documentProperties.setProperty('TOPICS', topics + "," + text);
+    documentProperties.setProperty('FEATURES', features + "," + text);
   } else {
     // the user closed popup
   }
@@ -238,13 +238,13 @@ function addCatProperty(propertyValues, newProperty) {
 
 
 /** Function that shows the popup for tagging selected text 
- * It adds the defined topics to a dropdown in the window 
+ * It adds the defined features to a dropdown in the window 
  * It adds the already tagged effects from spreadsheet in the "leads to" dropdown list
  */
 function showPopup(effect, dimension) {
-  // Get document topics
+  // Get document features
   let documentProperties = PropertiesService.getDocumentProperties();
-  let topics = documentProperties.getProperty('TOPICS')
+  let features = documentProperties.getProperty('FEATURES')
   let htmlTemplate = HtmlService.createTemplateFromFile('popup')
   let ddOptionDict = populateDropdown()
   var ddValues = []
@@ -262,9 +262,9 @@ function showPopup(effect, dimension) {
   htmlTemplate.dropdownOptions = ddValues
   console.log("test", ddValues)
 
-  if (topics) {
-    // set topics on template
-    htmlTemplate.data = topics.split(",")
+  if (features) {
+    // set features on template
+    htmlTemplate.data = features.split(",")
   } else {
     // send empty array
     htmlTemplate.data = []
@@ -521,7 +521,7 @@ async function processFeatures(formObject) {
       let currentSheet = SpreadsheetApp.openById(sheet.getId())
       let lastRowInt = currentSheet.getLastRow()
       let elementID = "ID" + lastRowInt.toString()
-      console.log("id", elementID, "formObject", "subcat", formObject.topicSelection, formObject)
+      console.log("id", elementID, "formObject", "subcat", formObject.featureSelection, formObject)
       let data = currentSheet.getDataRange().getValues();
       let ind = null;
       for (var i = 0; i < data.length; i++) {
@@ -536,18 +536,18 @@ async function processFeatures(formObject) {
         if (formObject.susDimension == currentDim) {
           let userChoice = checkEdit()
           if (userChoice) {
-            range.setValues([[formObject.selectedEffect, formObject.susDimension, "", "", formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl]])
+            range.setValues([[formObject.selectedEffect, formObject.susDimension, "", "", formObject.featureSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl]])
             DocumentApp.getUi().alert("Tag was edited succesfully in spreadsheet")
           }
           else {
             DocumentApp.getUi().alert("Tag was not edited")
           }
         } else {
-          currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, "", "", formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
+          currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, "", "", formObject.featureSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
           DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
         }
       } else {
-        currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, "", "", formObject.topicSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
+        currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, "", "", formObject.featureSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
         DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
       }
     }
