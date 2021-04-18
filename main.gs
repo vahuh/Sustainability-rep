@@ -135,7 +135,7 @@ function toCsv() {
 function onOpen(e) {
   DocumentApp.getUi().createAddonMenu()
     .addItem('Start', 'showSidebar')
-    .addItem('Feature list', 'askFeatures')
+    //.addItem('Feature list', 'askFeatures')
     .addToUi();
 }
 
@@ -166,10 +166,10 @@ function showSidebar() {
   DocumentApp.getUi().showSidebar(ui);
 }
 
-/**
+/*/**
 *  Display a dialog box with a title, message, input field, and "Yes" and "No" buttons.
 *  The user can also close the dialog by clicking the close button in its title bar.
-*/
+
 function askFeatures() {
   // Get previous properties
   let documentProperties = PropertiesService.getDocumentProperties();
@@ -189,20 +189,21 @@ function askFeatures() {
   } else {
     // the user closed popup
   }
-}
+}*/
 
 /**
- * Function to set Category or SubCategory properties for document
- * It appends new categories or subcategories to document properties
+ * Function to set properties for document
+ * It appends new categories or subcategories, or features to document properties
  * If document categories are empty, the new value is directly added as first value 
  */
-function setCatProperties(catType, inputText) {
+function setProperties(property, inputText) {
   //Get Previous properties 
   let documentProperties = PropertiesService.getDocumentProperties();
-  let categories = documentProperties.getProperty('CATEGORIES')
-  let subCategories = documentProperties.getProperty('SUBCATEGORIES')
-  if (catType == 'Category') {
-    if (!addCatProperty(categories, inputText)) {
+  let categories = documentProperties.getProperty('CATEGORIES');
+  let subCategories = documentProperties.getProperty('SUBCATEGORIES');
+  let features = documentProperties.getProperty('FEATURES');
+  if (property == 'Category') {
+    if (!addProperty(categories, inputText)) {
       if (categories == null) {
         documentProperties.setProperty('CATEGORIES', inputText)
       }
@@ -211,8 +212,8 @@ function setCatProperties(catType, inputText) {
       }
     }
   }
-  else if (catType == 'SubCategory') {
-    if (!addCatProperty(subCategories, inputText)) {
+  else if (property == 'SubCategory') {
+    if (!addProperty(subCategories, inputText)) {
       if (subCategories == null) {
         documentProperties.setProperty('SUBCATEGORIES', inputText)
       } else {
@@ -220,20 +221,31 @@ function setCatProperties(catType, inputText) {
       }
     }
   }
+  else if (property == 'Feature') {
+    console.log("This is value of addProperty",addProperty(features,inputText))
+    if (!addProperty(features,inputText)){
+      if (features == null){
+        documentProperties.setProperty('FEATURES',inputText)
+      } else {
+        documentProperties.setProperty('FEATURES',features + "," + inputText);
+      }
+    }
+  }
 }
 
 
-/** Function to check if a category or subcategory value is already existing in the document properties 
+/** Function to check if a property value is already existing in the document properties 
  * If not, the function returns false
  * If yes, the function returns true
  */
-function addCatProperty(propertyValues, newProperty) {
+function addProperty(propertyValues, newProperty) {
   propertyValueList = (propertyValues || "").split(',')
   for (var i in propertyValueList) {
     if (propertyValueList[i].toString() == newProperty.toString()) {
       return true
     }
   }
+  return false 
 }
 
 
@@ -273,7 +285,7 @@ function showPopup(effect, dimension) {
   let htmlPopup = htmlTemplate.evaluate()
   // set width and height
   htmlPopup
-    .setWidth(600)
+    .setWidth(700)
     .setHeight(750)
   //variable to append the selected effect as hidden division in the html file
   var strEffect = "<div id='selectedEffect' style='display:none;'>" + Utilities.base64Encode(JSON.stringify(effect)) + "</div>"
@@ -284,7 +296,7 @@ function showPopup(effect, dimension) {
   //appending the sustainability dimension to html file  
   htmlPopup = htmlPopup.append(strDimension)
   //getting the form visible to the user
-  DocumentApp.getUi().showModalDialog(htmlPopup, 'Effect tagging')
+  DocumentApp.getUi().showModalDialog(htmlPopup, 'Tagging an effect')
 
 }
 
@@ -410,7 +422,7 @@ function processCategories(formObject, catType) {
     } else {
       rowNumber = effectRow + 2
       rowNumberStr = rowNumber.toString()
-      setCatProperties(catType, catText)
+      setProperties(catType, catText)
       if (catType == "Category") {
         var catCell = currentSheet.getRange("D" + rowNumberStr + ":D" + rowNumberStr).getCell(1, 1)
 
@@ -523,31 +535,43 @@ async function processFeatures(formObject) {
       let elementID = "ID" + lastRowInt.toString()
       console.log("id", elementID, "formObject", "subcat", formObject.featureSelection, formObject)
       let data = currentSheet.getDataRange().getValues();
-      let ind = null;
+      console.log ("This is data: ", data)
+      let associatedDims = {}
+      let featureText = checkInputType(formObject.inputFeature, formObject.featureSelection)
       for (var i = 0; i < data.length; i++) {
         if (data[i][1] == formObject.selectedEffect) {
-          ind = i
-          break;
+          associatedDims[i]=data[i][2]
+          console.log("this is value of i: ", i)
         }
       }
-      if (ind != null) {
-        let range = currentSheet.getRange(`B${ind + 1}:J${ind + 1}`)
-        let currentDim = currentSheet.getRange(`C${ind + 1}:C${ind + 1}`).getCell(1, 1).getValue()
-        if (formObject.susDimension == currentDim) {
+      if (!isEmpty(associatedDims)) {
+        let ind
+        for (var key in associatedDims){
+          if (associatedDims[key] == formObject.susDimension){
+            ind = key
+            console.log("associated ind: ",ind, "associated dim key", associatedDims[key])
+            break
+          }  
+        }
+        if (ind != null){
+          console.log ("this is current ind: ",ind)
+          let range = currentSheet.getRange(`B${parseInt(ind) + 1}:J${parseInt(ind) + 1}`)
           let userChoice = checkEdit()
           if (userChoice) {
-            range.setValues([[formObject.selectedEffect, formObject.susDimension, "", "", formObject.featureSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl]])
+            setProperties('Feature', featureText)
+            range.setValues([[formObject.selectedEffect, formObject.susDimension, "", "", featureText, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl]])
             DocumentApp.getUi().alert("Tag was edited succesfully in spreadsheet")
           }
           else {
             DocumentApp.getUi().alert("Tag was not edited")
           }
         } else {
-          currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, "", "", formObject.featureSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
+          setProperties('Feature', featureText)
+          currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, "", "", featureText, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
           DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
         }
       } else {
-        currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, "", "", formObject.featureSelection, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
+        currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, "", "", featureText, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
         DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
       }
     }

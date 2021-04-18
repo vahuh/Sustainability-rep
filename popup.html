@@ -23,12 +23,18 @@
 </style>
 
 <body>
-	<h1>Create Tag</h1>
 	<form id="tagForm" onsubmit="submitTag(this)">
-				<div class="form-group">
-					<label for="featureSelection">Feature</label>
+       <div class="form-group">
+         <legend class="col-form-label">Feature of the effect</legend>
+         <p> If input field for the feature has content, it will be the value attached to the effect.</p>
+          <label id="inputLabel" for="inputFeature">New feature</label>
+          <input type="text" class="form-control" id="inputFeature" name="feature" placeholder="Define new feature" >
+          <br>
+          <label for="featureSelection">Select an existing feature</label>
+          <input type = "text" placeholder="Search feature" id="feautureInput" onkeyup="filterInput(this.value, getElementById(featureSelection).id)">
 					<!-- Dropdown list of user-inserted features -->
 					<select id="featureSelection" name="feature" class="form-control">
+            <option value="">None</option>
             <!-- Loop over data property -->
 						<? for (var i = 0; i < data.length; i++) { ?>
             <!-- Create one option per entry in data list -->
@@ -70,12 +76,13 @@
 					</div>
 				</fieldset>
 				<div class="form-group">
-					<label for="memoArea">Memo</label>
+					<legend class="col-form-label">Memo</legend>
 					<textarea class="form-control" id="memoArea" rows="4" cols="50"></textarea>
 				</div>
-        <label for="linkDdl">Leads to</label>   
-        <div class="form-group">     
-          <input type="text" placeholder="Search effect" id="effectInput" onkeyup="filterEffects(this.value)">
+        <div class="form-group"> 
+          <legend class="col-form-label">Leads to</legend>
+          <p>If the effect leads to another already tagged one, it can be defined here</p>      
+          <input type="text" placeholder="Search effect" id="effectInput" onkeyup="filterInput(this.value,getElementById(linkDdl).id)">
           <select id="linkDdl" name="leadsTo" class="form-control">
             <option value="">None</option>
 						<? for (var i = 0; i < dropdownOptions.length; i++) { ?>
@@ -91,18 +98,7 @@
 
 <script type="text/javascript">
   window.onload = initialize
-  //window.addEventListener('load',preventSubmit)
 
-  //function to filterinput of user in dropdown
-  function filterEffects(keyword){
-    console.log("this is the keyword", keyword)
-    var dropdownMenu = document.getElementById("linkDdl")
-    for (var i = 0; i< dropdownMenu.length; i++){
-      var txt = dropdownMenu.options[i].text;
-      var include = txt.toLowerCase().includes(keyword.toLowerCase())
-      dropdownMenu.options[i].style.display = include ? 'list-item':'none'
-    }
-  }
 
   //Function to get value of selected radio button 
   function getSelectedRadio(form, radioGroup){
@@ -121,7 +117,16 @@
 
   }
 
-
+//function to filter input of user in dropdown
+  function filterInput(keyword,elementID){
+    console.log("this is the keyword", keyword)
+    var dropdownMenu = document.getElementById(elementID)
+    for (var i = 0; i< dropdownMenu.length; i++){
+      var txt = dropdownMenu.options[i].text;
+      var include = txt.toLowerCase().includes(keyword.toLowerCase())
+      dropdownMenu.options[i].style.display = include ? 'list-item':'none'
+    }
+  }
 
   //function to initialize the html file with the data sent from main.gs
   function initialize(){
@@ -148,14 +153,6 @@
 
   }
   
-  /*//function used to prevent forms from submitting
-  function preventSubmit(){
-    var currentForm = document.querySelector('form')
-    currentForm.addEventListener('submit',function(event){
-      event.preventDefault()
-    })
-  }*/
- 
   
  
  //function that calls function from google Script to process the elements entered in the form
