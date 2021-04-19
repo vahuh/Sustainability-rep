@@ -571,6 +571,7 @@ async function processFeatures(formObject) {
           DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
         }
       } else {
+        setProperties('Feature', featureText)
         currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, "", "", featureText, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
         DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
       }
