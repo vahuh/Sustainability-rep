@@ -1,3 +1,4 @@
+ 
 /* 
   Sustainability reporting plugin 
  */
@@ -135,7 +136,6 @@ function toCsv() {
 function onOpen(e) {
   DocumentApp.getUi().createAddonMenu()
     .addItem('Start', 'showSidebar')
-    //.addItem('Feature list', 'askFeatures')
     .addToUi();
 }
 
@@ -166,30 +166,7 @@ function showSidebar() {
   DocumentApp.getUi().showSidebar(ui);
 }
 
-/*/**
-*  Display a dialog box with a title, message, input field, and "Yes" and "No" buttons.
-*  The user can also close the dialog by clicking the close button in its title bar.
 
-function askFeatures() {
-  // Get previous properties
-  let documentProperties = PropertiesService.getDocumentProperties();
-  let features = documentProperties.getProperty('FEATURES');
-  let ui = DocumentApp.getUi();
-  let response = ui.prompt('List of features', features + '\n\nSeparate features with comma.\n\nDo you want to overwrite existing features?', ui.ButtonSet.YES_NO_CANCEL);
-
-  // Process the user's response.
-  if (response.getSelectedButton() == ui.Button.YES) {
-    // Got response, save as new feature list
-    let text = response.getResponseText();
-    documentProperties.setProperty('FEATURES', text);
-  } else if (response.getSelectedButton() == ui.Button.NO) {
-    // the user clicked no
-    let text = response.getResponseText();
-    documentProperties.setProperty('FEATURES', features + "," + text);
-  } else {
-    // the user closed popup
-  }
-}*/
 
 /**
  * Function to set properties for document
@@ -571,6 +548,7 @@ async function processFeatures(formObject) {
           DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
         }
       } else {
+        setProperties('Feature', featureText)
         currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, "", "", featureText, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
         DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
       }

@@ -27,8 +27,9 @@
 	<form id="categoryForm" onsubmit="submitCategory(this)">
 				<label for="effectDdl">Tagged effect</label>   
         <div class="form-group">     
-          <input type="text" placeholder="Search effect" id="effectInput" onkeyup="filterInput(this.value, getElementById(effectDdl).id)">
+          <input type="text" placeholder="Search effect" id="effectInput" onkeyup="filterInput(this.value,'effectDdl')">
           <select id="effectDdl" name="effect" class="form-control">
+            <option value="">None</option>
 						<? for (var i = 0; i < dropdownOptions.length; i++) { ?>
 						<option value="<?= dropdownOptions[i] ?>">
 							<?= dropdownOptions[i] ?>
@@ -42,8 +43,9 @@
         </div>
         <label id="ddlLabel" for="catDdl"></label>
         <div class="form-group">     
-          <input type="text" placeholder="Search category" id="categoryInput" onkeyup="filterInput(this.value, getElementById(catDdl).id)">
+          <input type="text" placeholder="Search category" id="categoryInput" onkeyup="filterInput(this.value,'catDdl')">
           <select id="catDdl" name="category" class="form-control">
+            <option value="">None</option>
           <!-- Loop over data property -->
 						<? for (var i = 0; i < data.length; i++) { ?>
             <!-- Create one option per entry in data list -->

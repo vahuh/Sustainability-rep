@@ -31,7 +31,7 @@
           <input type="text" class="form-control" id="inputFeature" name="feature" placeholder="Define new feature" >
           <br>
           <label for="featureSelection">Select an existing feature</label>
-          <input type = "text" placeholder="Search feature" id="feautureInput" onkeyup="filterInput(this.value, getElementById(featureSelection).id)">
+          <input type = "text" placeholder="Search feature" id="feautureInput" onkeyup="filterInput(this.value,'featureSelection')">
 					<!-- Dropdown list of user-inserted features -->
 					<select id="featureSelection" name="feature" class="form-control">
             <option value="">None</option>
@@ -82,7 +82,7 @@
         <div class="form-group"> 
           <legend class="col-form-label">Leads to</legend>
           <p>If the effect leads to another already tagged one, it can be defined here</p>      
-          <input type="text" placeholder="Search effect" id="effectInput" onkeyup="filterInput(this.value,getElementById(linkDdl).id)">
+          <input type="text" placeholder="Search effect" id="effectInput" onkeyup="filterInput(this.value,'linkDdl')">
           <select id="linkDdl" name="leadsTo" class="form-control">
             <option value="">None</option>
 						<? for (var i = 0; i < dropdownOptions.length; i++) { ?>
