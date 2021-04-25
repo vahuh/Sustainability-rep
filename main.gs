@@ -15,7 +15,6 @@ function tag(dimension) {
     let selectedText = getTextSelection(selection)
     highlightSelectedText(selection, dimension)
     showPopup(selectedText, dimension)
-    console.log("range", selection)
   }
   else {
     DocumentApp.getUi().alert("You need to select text to tag!")
@@ -90,38 +89,22 @@ function highlightSelectedText(selection, dimension) {
 
 /** Function to create Sheets in current folder */
 function createSheetOnCurrentFolder() {
-  /* Get current folder */
-  let document = DocumentApp.getActiveDocument()
-  let file = DriveApp.getFileById(document.getId())
+  /* This document. */
+  let document = DocumentApp.getActiveDocument() 
+  /* Google Drive handle to this document. */
+  let file = DriveApp.getFileById(document.getId()) 
+  /* Get current folder in Google Drive:
+    It's the first element in parent nodes */
   let folder = file.getParents().next()
-  /* Create SpreadSheet */
+  /* Create SpreadSheet in root directory of Google Drive */
   let sheet = SpreadsheetApp.create("SuSaf output")
+  /* Add header row */
   sheet.appendRow(['ID', 'Effect', 'Dimension', 'Category', 'SubCategory', 'Feature', 'Impact', 'Order of effect', 'Memo', 'Leads to'])
-
+  /* Google Drive handle to current Sheets document */
   let sheetfile = DriveApp.getFileById(sheet.getId())
   /* Move sheet to current folder */
   if (folder) sheetfile.moveTo(folder)
 }
-
-function toCsv() {
-  /* Get current document folder */
-  let document = DocumentApp.getActiveDocument()
-  let file = DriveApp.getFileById(document.getId())
-  let folder = file.getParents().next()
-  /* Get first sheet */
-  let sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
-  let sheet = sheets.next()
-  if (sheet) {
-    /* Open spreadsheet */
-    let ss = SpreadsheetApp.openById(sheet.getId())
-    /* Get all data */
-    let range = ss.getDataRange()
-    /* Returns a list of lists */
-    let values = range.getValues()
-    console.log("values", values)
-  }
-}
-
 
 
 /**
@@ -199,7 +182,6 @@ function setProperties(property, inputText) {
     }
   }
   else if (property == 'Feature') {
-    console.log("This is value of addProperty",addProperty(features,inputText))
     if (!addProperty(features,inputText)){
       if (features == null){
         documentProperties.setProperty('FEATURES',inputText)
@@ -216,9 +198,11 @@ function setProperties(property, inputText) {
  * If yes, the function returns true
  */
 function addProperty(propertyValues, newProperty) {
+  /* If property values split them by comma else split empty string by comma */
   propertyValueList = (propertyValues || "").split(',')
+  /* return true if property exists in array */
   for (var i in propertyValueList) {
-    if (propertyValueList[i].toString() == newProperty.toString()) {
+    if (propertyValueList[i].toString().toLowerCase() === newProperty.toString().toLowerCase()) {
       return true
     }
   }
@@ -234,7 +218,9 @@ function showPopup(effect, dimension) {
   // Get document features
   let documentProperties = PropertiesService.getDocumentProperties();
   let features = documentProperties.getProperty('FEATURES')
+  /* Create template instance from popup.html */
   let htmlTemplate = HtmlService.createTemplateFromFile('popup')
+  /* Populate dropdown options */
   let ddOptionDict = populateDropdown()
   var ddValues = []
 
@@ -249,10 +235,9 @@ function showPopup(effect, dimension) {
   }
   //set feature dropdown options to template
   htmlTemplate.dropdownOptions = ddValues
-  console.log("test", ddValues)
-
+  
   if (features) {
-    // set features on template
+    // if features then set features on template
     htmlTemplate.data = features.split(",")
   } else {
     // send empty array
@@ -277,15 +262,6 @@ function showPopup(effect, dimension) {
 
 }
 
-//function used to check if a value is already in a list, returns true if it is the case
-function checkValuePresence(list, text) {
-  for (var i in list) {
-    if (list[i] == text) {
-      return true
-    }
-  }
-}
-
 /**Function that shows the popup for categorizing an effect
  * Gets all the existing effect values and pushes them to a list that is visible to the user on the effect selection dropdown 
  * No values are added if there are no existing values 
@@ -297,35 +273,18 @@ function showCatPopup(catType) {
   let htmlTemplate = HtmlService.createTemplateFromFile('categories')
   let ddOptionDict = populateDropdown()
   var ddValues = []
-  var catValues = []
-  var subCatValues = []
 
   if (catType == 'Category') {
     if (categories) {
-      var existingCategories = (categories || "").split(",")
-      for (var i in existingCategories) {
-        //Only distinct strings are sent to html, if the element is null, it is also left out
-        if (!checkValuePresence(catValues, existingCategories[i]) && existingCategories[i] != 'null') {
-          catValues.push(existingCategories[i])
-        }
-        else if (existingCategories[i] == 'null') {
-          continue
-        }
-      }
-      htmlTemplate.data = catValues
+      // Only distinct strings are sent to html, if the element is null, it is also left out
+      htmlTemplate.data = [... new Set((categories || "").split(","))].filter(e => e && e != 'null')
     } else {
       htmlTemplate.data = []
     }
   } else if (catType == 'SubCategory') {
     if (subCategories) {
-      var existingSubCategories = subCategories.split(",")
-      for (var i in existingSubCategories) {
-        //Only distinct strings are sent to html, if the element is null, it is also left out
-        if (!checkValuePresence(catValues, existingSubCategories[i]) && existingSubCategories[i] != 'null') {
-          subCatValues.push(existingSubCategories[i])
-        }
-      }
-      htmlTemplate.data = subCatValues
+      // Only distinct strings are sent to html, if the element is null, it is also left out
+      htmlTemplate.data = [... new Set((subCategories || "").split(","))].filter(e => e && e != 'null')
     } else {
       htmlTemplate.data = []
     }
@@ -342,16 +301,17 @@ function showCatPopup(catType) {
   }
   //set effect dropdown options to template
   htmlTemplate.dropdownOptions = ddValues
-  console.log("test", ddValues)
-
+  /* Put values in template */
   let htmlCategories = htmlTemplate.evaluate()
+  /* Set popup size */
   htmlCategories
     .setWidth(600)
     .setHeight(500)
 
+  /* Push more data to popup */
   var strCatType = "<div id='catType' style='display:none;'>" + Utilities.base64Encode(JSON.stringify(catType)) + "</div>"
-
   htmlCategories = htmlCategories.append(strCatType)
+  /* Show popup */
   DocumentApp.getUi().showModalDialog(htmlCategories, 'Categorizing')
 }
 
@@ -364,16 +324,21 @@ function showCatPopup(catType) {
  * When there is no value associated with the effect, the category or subcategory value is set in the corresponding cell in spreadsheet
  */
 function processCategories(formObject, catType) {
+  /* Get spreadsheet from parent folder */
   var document = DocumentApp.getActiveDocument()
   var file = DriveApp.getFileById(document.getId())
   var folder = file.getParents().next()
   var spreadsheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
 
   if (spreadsheets.hasNext()) {
+    /* Open the first spreadsheet */
     var spreadsheet = spreadsheets.next()
     var currentSheet = SpreadsheetApp.openById(spreadsheet.getId())
+    /* Get last row in spreadsheet */
     var lastrow = currentSheet.getLastRow()
+    /* Get last column in spreadsheet */
     var idColumn = currentSheet.getRange("A2:A" + lastrow)
+    /* Get data in the first column */
     var idData = idColumn.getValues()
     var effectRow = null
     var catText = checkInputType(formObject.inputCategory, formObject.catDdl)
@@ -381,7 +346,6 @@ function processCategories(formObject, catType) {
     try {
       categorizedEffect = formObject.effectDdl
       selectedID = findEffectID(categorizedEffect)
-      console.log('selected ID:', selectedID)
     } catch (e) {
       DocumentApp.getUi.alert("An error occured, ID couldn't be found.")
     }
@@ -500,8 +464,11 @@ async function processFeatures(formObject) {
     let folder = file.getParents().next()
     /* Get first sheet */
     let sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
+    /* Sheet does not exist, create it! */
     if (!sheets.hasNext()) {
+      /* Needs to wait for spreadsheet creation to be complete */
       await createSheetOnCurrentFolder()
+      /* Get newly created spradsheet instance */
       sheets = folder.getFilesByType(MimeType.GOOGLE_SHEETS)
     }
     let sheet = sheets.next()
@@ -510,15 +477,12 @@ async function processFeatures(formObject) {
       let currentSheet = SpreadsheetApp.openById(sheet.getId())
       let lastRowInt = currentSheet.getLastRow()
       let elementID = "ID" + lastRowInt.toString()
-      console.log("id", elementID, "formObject", "subcat", formObject.featureSelection, formObject)
       let data = currentSheet.getDataRange().getValues();
-      console.log ("This is data: ", data)
       let associatedDims = {}
       let featureText = checkInputType(formObject.inputFeature, formObject.featureSelection)
       for (var i = 0; i < data.length; i++) {
         if (data[i][1] == formObject.selectedEffect) {
           associatedDims[i]=data[i][2]
-          console.log("this is value of i: ", i)
         }
       }
       if (!isEmpty(associatedDims)) {
@@ -526,31 +490,31 @@ async function processFeatures(formObject) {
         for (var key in associatedDims){
           if (associatedDims[key] == formObject.susDimension){
             ind = key
-            console.log("associated ind: ",ind, "associated dim key", associatedDims[key])
             break
           }  
         }
         if (ind != null){
-          console.log ("this is current ind: ",ind)
+          /* Edit data, get correct range of cells */
           let range = currentSheet.getRange(`B${parseInt(ind) + 1}:J${parseInt(ind) + 1}`)
           let userChoice = checkEdit()
           if (userChoice) {
             setProperties('Feature', featureText)
+            /* Set values in spreadsheet */
             range.setValues([[formObject.selectedEffect, formObject.susDimension, "", "", featureText, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl]])
-            DocumentApp.getUi().alert("Tag was edited succesfully in spreadsheet")
+            //DocumentApp.getUi().alert("Tag was edited succesfully in spreadsheet")
           }
           else {
-            DocumentApp.getUi().alert("Tag was not edited")
+            DocumentApp.getUi().alert("There was an issue. Tag was not edited.")
           }
         } else {
           setProperties('Feature', featureText)
           currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, "", "", featureText, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
-          DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
+          // DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
         }
       } else {
         setProperties('Feature', featureText)
         currentSheet.appendRow([elementID, formObject.selectedEffect, formObject.susDimension, "", "", featureText, formObject.impactPosNeg, formObject.orderEffect, formObject.memoArea, formObject.linkDdl])
-        DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
+        // DocumentApp.getUi().alert("Tag was added succesfully to spreadsheet")
       }
     }
   } catch (e) {

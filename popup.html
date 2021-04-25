@@ -175,7 +175,9 @@
     //adding order of effect based on the selected radio button to the dictionnary
     obj["orderEffect"] = getSelectedRadio(formObject,"effectRadioOptions")
 
+    /* Run processFeatures function in main.gs */
     google.script.run.processFeatures(obj)
+    /* Reset form */
     document.getElementById("tagForm").reset()
     //closing window after submitting
     google.script.host.close()

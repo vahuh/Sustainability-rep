@@ -2,19 +2,19 @@
 <html>
 
 <head>
-	<base target="_top">
-	<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
-	<!-- The CSS package above applies Google styling to buttons and other elements. -->
+  <base target="_top">
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  <!-- The CSS package above applies Google styling to buttons and other elements. -->
 
-	<!-- Our styling -->
-	<style>
-		.sidebar {
-			/* Just an example */
-			background-color: gainsboro;
+  <!-- Our styling -->
+  <style>
+    .sidebar {
+      /* Just an example */
+      background-color: gainsboro;
       height: 100%;
-		}
+    }
 
-    .button{
+    .button {
       border: 2px solid silver;
       text-align: center;
       display: inline-block;
@@ -24,45 +24,44 @@
       height: 40px;
     }
 
-    .button1{
+    .button1 {
       border: 2px solid mediumpurple;
     }
 
-    .button2{
+    .button2 {
       border: 2px solid seagreen;
     }
 
-    .button3{
+    .button3 {
       border: 2px solid plum;
     }
 
-    .button4{
+    .button4 {
       border: 2px solid slategray;
     }
 
-    .button5{
+    .button5 {
       border: 2px solid rosybrown;
     }
 
-    .step{
+    .step {
       font-size: 14px;
       margin: 5px 10px;
     }
-
-	</style>
+  </style>
 </head>
 
 <body>
 
-	<!-- Our code here -->
-	<div class="sidebar">
+  <!-- Our code here -->
+  <div class="sidebar">
     <div class="description">Select some text to tag based on sustainability dimension.</div>
     <div class="step">
       <b>Tag</b>
       <br>
       Click on a button to tag.
-      </div>
-		<button class="button button1" onclick="buttonClick(this,'economic')">Economical Impact</button>
+    </div>
+    <button class="button button1" onclick="buttonClick(this,'economic')">Economical Impact</button>
     <br>
     <button class="button button2" onclick="buttonClick(this, 'environmental')">Environmental Impact</button>
     <br>
@@ -90,26 +89,23 @@
 
 <!-- Our script here -->
 <script type="text/javascript">
-	/* console.log appears in dev tools console when plugin is loaded */
-	console.log("executing script...")
+  /* console.log appears in dev tools console when plugin is loaded */
+  console.log("executing script...")
 
   /* Define a funciton to be executed when button is clicked */
-	function buttonClick(event, param){
-    console.log("buttonClick",event, param)
-    /* This is how to call cloud script functions from main.gs */
+  function buttonClick(event, param) {
+    console.log("buttonClick", event, param)
+    /* call function tag in main.gs */
     google.script.run
       .withUserObject(this)
       .tag(param)
   }
 
-  function categoryClick(event,param){
+  function categoryClick(event, param) {
     google.script.run
-    .withUserObject(this)
-    .showCatPopup(param)
-    }
-
-
-
+      .withUserObject(this)
+      .showCatPopup(param)
+  }
 </script>
 
 </html>
