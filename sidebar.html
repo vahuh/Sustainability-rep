@@ -9,7 +9,6 @@
   <!-- Our styling -->
   <style>
     .sidebar {
-      /* Just an example */
       background-color: gainsboro;
       height: 100%;
     }
@@ -92,7 +91,8 @@
   /* console.log appears in dev tools console when plugin is loaded */
   console.log("executing script...")
 
-  /* Define a funciton to be executed when button is clicked */
+  /* Define a function to be executed when sustainability button is clicked 
+  Takes the click event as a parameter and the dimension that has been clicked*/
   function buttonClick(event, param) {
     console.log("buttonClick", event, param)
     /* call function tag in main.gs */
@@ -101,6 +101,8 @@
       .tag(param)
   }
 
+  /*Function that is called when grouping button is clicked 
+  Takes the click event as a parameter and the type of grouping (category/subcategory)*/
   function categoryClick(event, param) {
     google.script.run
       .withUserObject(this)

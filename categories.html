@@ -94,7 +94,10 @@
     }
   }
 
+  /*Function which is called when the submit button is clicked 
+  It takes the form as a parameter and sends the data to the processCategories function in main.gs*/
   function submitCategory(formObject){
+    /*Conversion of the category type that comes from main.gs so that it is visible on the UI*/
     var encodedCatType = document.getElementById("catType").innerHTML
     var catType = JSON.parse(atob(encodedCatType)) 
         
@@ -107,7 +110,9 @@
         obj[e.id] = e.value
       }
     })
- 
+    
+    /* Function call to main.gs, which will process the information contained in the form 
+    Form is initalized after processing*/
     google.script.run.processCategories(obj, catType)
     document.getElementById("categoryForm").reset()
     //closing window after submitting
